@@ -1,3 +1,4 @@
+using BETest.Config;
 using BETest.Enum;
 using BETest.Misc;
 using BETest.Networking.Transport;
@@ -18,10 +19,10 @@ namespace BETest.Networking.ConnectionHandling
 
         public short CurrentTick => _currentTick;
 
-        public bool IsRunning => _server.IsRunning;
+        public bool IsRunning => _server?.IsRunning ?? false;
 
-        public event Action<NetPeer> ClientConnected;
-        public event Action<NetPeer> ClientDisconnected;
+        public static event Action<NetPeer> ClientConnected;
+        public static event Action<NetPeer> ClientDisconnected;
 
         public void StartServer()
         {

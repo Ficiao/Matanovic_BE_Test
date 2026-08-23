@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace BETest.Networking.Messages
 {
-    public static class ConnectRequesMessageHandler
+    public static class ConnectRequestMessageHandler
     {
         private const int MAX_ATTEMPTS = 5;
         private const float WINDOW = 60f;
@@ -31,12 +31,12 @@ namespace BETest.Networking.Messages
                 TickIndex = NetworkServer.Instance.CurrentTick,
             };
 
-            NetworkServer.SendMessage(message, peer, TransmissionChannel.GenericRO, DeliveryMethod.ReliableOrdered);
+            NetworkServer.SendMessage(acceptMessage, peer, TransmissionChannel.GenericRO, DeliveryMethod.ReliableOrdered);
         }
 
         public static bool AllowConnection(string ip, float now)
         {
-            if (!_ipAttempts.TryGetValue(ip, out var entry))
+            if (!_ipAttempts.TryGetValue(ip, out (int count, float resetTime) entry))
             {
                 _ipAttempts[ip] = (1, now + WINDOW);
                 return true;

@@ -1,3 +1,4 @@
+using BETest.Config;
 using BETest.Enum;
 using BETest.Misc;
 using BETest.Networking.Messages;
@@ -26,9 +27,9 @@ namespace BETest.Networking.ConnectionHandling
         }
         public bool IsConnected => _server?.ConnectionState == ConnectionState.Connected;
 
-        public event Action Connected;
-        public event Action Disconnected;
-        public event Action<NetPacketReader, byte, DeliveryMethod> PacketReceived;
+        public static event Action Connected;
+        public static event Action Disconnected;
+        public static event Action<NetPacketReader, byte, DeliveryMethod> PacketReceived;
 
         public void Connect(string address)
         {
@@ -77,7 +78,7 @@ namespace BETest.Networking.ConnectionHandling
             Connected?.Invoke();
 
             ConnectRequestMessage connectMessage = new() { Data = new() { PlayerName = _playerName} };
-            _messageProcessor.SendPacket(connectMessage, TransmissionChannel.GenericRO, DeliveryMethod.ReliableOrdered);
+            SendMessage(connectMessage, TransmissionChannel.GenericRO, DeliveryMethod.ReliableOrdered);
         }        
 
         public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
@@ -96,9 +97,9 @@ namespace BETest.Networking.ConnectionHandling
             _messageProcessor.HandleAllPacketsForPeer(reader, peer);
         }
 
-        public void SendMessage<T>(T packet, NetPeer peer, TransmissionChannel channel, DeliveryMethod deliveryMethod) where T : class, new()
+        public void SendMessage<T>(T packet, TransmissionChannel channel, DeliveryMethod deliveryMethod) where T : class, new()
         {
-            _messageProcessor.SendPacket(packet, peer, channel, deliveryMethod);
+            _messageProcessor.SendPacket(packet, channel, deliveryMethod);
         }
 
         public void OnNetworkError(IPEndPoint endPoint, SocketError socketError)

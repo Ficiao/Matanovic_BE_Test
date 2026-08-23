@@ -1,4 +1,6 @@
+using BETest.Config;
 using BETest.Misc;
+using BETest.Networking.Messages;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using System;
@@ -13,9 +15,8 @@ namespace BETest.Networking.RoomManagment
         private int _discoveryPort = ConnectionConfig.DISCOVERY_PORT;
         private string _protocol = ConnectionConfig.PROTOCOL;
         private NetManager _netManager;
-        private RoomInfo _advertisedRoom;
 
-        public event Action<RoomInfo> RoomDiscovered;
+        public static event Action<RoomInfo> RoomDiscovered;
 
         protected override void Init()
         {
@@ -28,14 +29,13 @@ namespace BETest.Networking.RoomManagment
             };
         }
 
-        public void StartAdvertising(RoomInfo room)
+        public void StartAdvertising()
         {
-            _advertisedRoom = room;
-
             if (!_netManager.IsRunning) _netManager.Start(_discoveryPort);
+            _netManager.BroadcastReceiveEnabled = true;
         }
 
-        public void StopAdvertising() => _advertisedRoom = null;
+        public void StopAdvertising() => _netManager.BroadcastReceiveEnabled = false;
 
         public void StartBrowsing()
         {
@@ -71,6 +71,9 @@ namespace BETest.Networking.RoomManagment
 
         private void HandleDiscoveryRequest(IPEndPoint remote, NetPacketReader reader)
         {
+            RoomInfo _advertisedRoom = RoomManager.Instance.CurrentRoom;
+            RoomStateType roomState = RoomManager.Instance.State;
+            if(roomState != RoomStateType.InRoomHost) return;
             if (_advertisedRoom == null) return;
             if (reader.GetString() != _protocol) return;
 

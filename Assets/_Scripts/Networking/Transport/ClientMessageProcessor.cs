@@ -1,4 +1,5 @@
 using BETest.Enum;
+using BETest.Networking.Messages;
 using LiteNetLib;
 
 namespace BETest.Networking.Transport
@@ -11,13 +12,9 @@ namespace BETest.Networking.Transport
 
         public ClientMessageProcessor()
         {
-            //Processor.Subscribe<PlayerSpawnMessage>(
-            //    PlayerSpawnMessageHandler.Process
-            //);
+            RegisterNestedType<ClientPlayerData>();
 
-            //Processor.Subscribe<WorldStateMessage>(
-            //    WorldStateMessageHandler.Process
-            //);
+            Subscribe<ConnectAcceptMessage>(ConnectAcceptMessageHandler.ProcessMessage);
         }
 
         public void SendPacket<T>(T packet, TransmissionChannel channel, DeliveryMethod deliveryMethod) where T : class, new()

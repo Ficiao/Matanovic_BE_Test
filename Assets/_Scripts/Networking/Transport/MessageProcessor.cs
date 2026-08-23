@@ -1,3 +1,4 @@
+using BETest.Config;
 using BETest.Enum;
 using LiteNetLib;
 using LiteNetLib.Utils;

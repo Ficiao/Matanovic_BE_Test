@@ -1,4 +1,7 @@
+using BETest.Config;
+using BETest.Player;
 using BETest.UI.Views;
+using System;
 using UnityEngine;
 
 namespace BETest.UI.Controllers
@@ -6,6 +9,8 @@ namespace BETest.UI.Controllers
     public class LoginController : MonoBehaviour
     {
         [SerializeField] private LoginView _view;
+
+        public static event Action LoginSucceeded;
 
         private void OnEnable()
         {
@@ -19,18 +24,16 @@ namespace BETest.UI.Controllers
 
         private void Login(string username)
         {
-            if (string.IsNullOrWhiteSpace(username))
+            if (string.IsNullOrWhiteSpace(username) || username.Length < GameConfig.MIN_USERNAME_LENGTH || username.Length > GameConfig.MAX_USERNAME_LENGTH)
             {
-                _view.ShowError("Username cannot be empty.");
+                _view.ShowError($"Username must be between {GameConfig.MIN_USERNAME_LENGTH} and {GameConfig.MAX_USERNAME_LENGTH} characters.");
                 return;
             }
 
-            PlayerSession.Instance.Username = username;
-
+            PlayerSession.Instance.SetUsername(username);
             _view.Hide();
 
-            // otvori SessionExplorer
-            // SessionSelectionController.Instance.Open();
+            LoginSucceeded?.Invoke();
         }
     }
 }

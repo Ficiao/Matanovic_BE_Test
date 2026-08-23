@@ -1,17 +1,15 @@
+using BETest.Networking.Messages;
+using LiteNetLib;
+
 namespace BETest.Networking.Transport
 {
     public class ServerMessageProcessor : MessageProcessor
     {
         public ServerMessageProcessor()
         {
+            RegisterNestedType<ConnectRequestData>();
 
-            //Processor.Subscribe<PlayerMoveMessage>(
-            //    PlayerMoveMessageHandler.Process
-            //);
-
-            //Processor.Subscribe<ShootMessage>(
-            //    ShootMessageHandler.Process
-            //);
+            Subscribe<ConnectRequestMessage>(ConnectRequestMessageHandler.ProcessMessage);
         }
     }
 }

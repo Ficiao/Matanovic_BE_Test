@@ -9,6 +9,7 @@ namespace BETest.UI.Views
     {
         [SerializeField] private TMP_InputField _usernameInput;
         [SerializeField] private Button _loginButton;
+        [SerializeField] private Button _quitButton;
         [SerializeField] private TMP_Text _notification;
 
         public event Action<string> LoginRequested;
@@ -16,11 +17,21 @@ namespace BETest.UI.Views
         private void Awake()
         {
             _loginButton.onClick.AddListener(OnLoginClicked);
+            _quitButton.onClick.AddListener(OnQuitClicked);
         }
 
         private void OnLoginClicked()
         {
             LoginRequested?.Invoke(_usernameInput.text);
+        }
+
+        private void OnQuitClicked()
+        {
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
         }
 
         public void ShowError(string message)
