@@ -12,8 +12,6 @@ namespace BETest.Networking.Transport
 
         public ClientMessageProcessor()
         {
-            RegisterNestedType<ClientPlayerData>();
-
             Subscribe<ConnectAcceptMessage>(ConnectAcceptMessageHandler.ProcessMessage);
         }
 

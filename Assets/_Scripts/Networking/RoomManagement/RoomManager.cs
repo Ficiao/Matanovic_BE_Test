@@ -1,12 +1,11 @@
 using BETest.Config;
-using BETest.Infra.SceneManagement;
 using BETest.Misc;
 using BETest.Networking.ConnectionHandling;
 using BETest.Networking.Messages;
 using LiteNetLib;
 using System;
 
-namespace BETest.Networking.RoomManagment
+namespace BETest.Networking.RoomManagement
 {
     public class RoomManager : SingletonPersistent<RoomManager>
     {

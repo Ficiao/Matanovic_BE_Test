@@ -1,6 +1,6 @@
 using BETest.Misc;
 using BETest.Networking.Messages;
-using BETest.Networking.RoomManagment;
+using BETest.Networking.RoomManagement;
 using UnityEngine.SceneManagement;
 
 namespace BETest.Infra.SceneManagement

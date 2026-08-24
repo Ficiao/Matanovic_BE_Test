@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace BETest.Networking.RoomManagment
+namespace BETest.Networking.RoomManagement
 {
     public class RoomInfo
     {

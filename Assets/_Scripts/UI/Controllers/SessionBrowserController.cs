@@ -1,6 +1,6 @@
 ﻿using BETest.Config;
 using BETest.Networking.Messages;
-using BETest.Networking.RoomManagment;
+using BETest.Networking.RoomManagement;
 using BETest.UI.Views;
 using System.Collections.Generic;
 using UnityEngine;
@@ -25,7 +25,7 @@ namespace BETest.UI.Controllers
             LanDiscovery.RoomDiscovered += OnRoomDiscovered;
             RoomManager.StateChanged += OnRoomStateChanged;
 
-            LoginController.LoginSucceeded += _view.Show;
+            LoginController.LoginSucceeded += OnLoginSucceeded;
         }
 
         private void OnDisable()
@@ -37,7 +37,7 @@ namespace BETest.UI.Controllers
             LanDiscovery.RoomDiscovered -= OnRoomDiscovered;
             RoomManager.StateChanged -= OnRoomStateChanged;
 
-            LoginController.LoginSucceeded -= _view.Show;
+            LoginController.LoginSucceeded -= OnLoginSucceeded; 
         }
 
         private void Refresh()
@@ -103,6 +103,12 @@ namespace BETest.UI.Controllers
 
             _view.SetInteractionEnabled(!waiting);
             if (!waiting) _view.SetJoinInteractable(_selectedRoom != null);
+        }
+
+        private void OnLoginSucceeded()
+        {
+            _view.Show();
+            Refresh();
         }
     }
 }

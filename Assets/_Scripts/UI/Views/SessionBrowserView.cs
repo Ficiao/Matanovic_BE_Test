@@ -1,4 +1,4 @@
-using BETest.Networking.RoomManagment;
+using BETest.Networking.RoomManagement;
 using BETest.UI.Controllers;
 using System;
 using TMPro;

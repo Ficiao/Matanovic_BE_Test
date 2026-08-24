@@ -8,7 +8,7 @@ using System.Net;
 using System.Net.Sockets;
 using UnityEngine;
 
-namespace BETest.Networking.RoomManagment
+namespace BETest.Networking.RoomManagement
 {
     public class LanDiscovery : SingletonPersistent<LanDiscovery>, INetEventListener
     {
@@ -31,7 +31,8 @@ namespace BETest.Networking.RoomManagment
 
         public void StartAdvertising()
         {
-            if (!_netManager.IsRunning) _netManager.Start(_discoveryPort);
+            if (_netManager.IsRunning) _netManager.Stop();
+            _netManager.Start(_discoveryPort);
             _netManager.BroadcastReceiveEnabled = true;
         }
 

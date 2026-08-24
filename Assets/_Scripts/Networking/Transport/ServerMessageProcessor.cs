@@ -7,8 +7,6 @@ namespace BETest.Networking.Transport
     {
         public ServerMessageProcessor()
         {
-            RegisterNestedType<ConnectRequestData>();
-
             Subscribe<ConnectRequestMessage>(ConnectRequestMessageHandler.ProcessMessage);
         }
     }

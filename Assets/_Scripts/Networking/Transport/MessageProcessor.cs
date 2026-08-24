@@ -1,5 +1,6 @@
 using BETest.Config;
 using BETest.Enum;
+using BETest.Networking.Messages;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using System;
@@ -15,6 +16,9 @@ namespace BETest.Networking.Transport
         {
             _packetProcessor = new NetPacketProcessor();
             _writer = new NetDataWriter();
+
+            RegisterNestedType<ConnectRequestData>();
+            RegisterNestedType<ClientPlayerData>();
         }
 
         public void RegisterNestedType<T>() where T : struct, INetSerializable
