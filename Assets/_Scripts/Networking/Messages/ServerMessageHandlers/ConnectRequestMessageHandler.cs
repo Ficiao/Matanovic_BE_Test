@@ -1,4 +1,6 @@
+using BETest.Entities;
 using BETest.Enum;
+using BETest.Infra.DependacyHandling;
 using BETest.Networking.ConnectionHandling;
 using LiteNetLib;
 using System.Collections.Generic;
@@ -17,21 +19,19 @@ namespace BETest.Networking.Messages
             if (!AllowConnection(peer.Address.ToString(), Time.unscaledTime))
             {
                 CustomLogger.Warning($"disconnecting_peer", new() { ["id"] = peer?.Id, ["reason"] = "too_many_connection_attempts" });
+                peer.Disconnect();
                 return;
             }
 
-
-            ConnectAcceptMessage acceptMessage = new()
+            NetworkObjectStateManager objectManager = GameSceneContext.Instance?.GetNetworkObjectStateManager();
+            if(objectManager == null)
             {
-                PlayerData = new ClientPlayerData
-                {
-                    PlayerName = message.Data.PlayerName,
-                    PID = (uint)peer.Id,
-                },
-                TickIndex = NetworkServer.Instance.CurrentTick,
-            };
+                CustomLogger.Warning($"disconnecting_peer", new() { ["id"] = peer?.Id, ["reason"] = "state_manager_not_found" });
+                peer.Disconnect();
+                return;
+            }
 
-            NetworkServer.SendMessage(acceptMessage, peer, TransmissionChannel.GenericRO, DeliveryMethod.ReliableOrdered);
+            objectManager.PlayerConnected(peer, message.Data);
         }
 
         public static bool AllowConnection(string ip, float now)

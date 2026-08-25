@@ -10,18 +10,17 @@ using UnityEngine;
 
 namespace BETest.Networking.RoomManagement
 {
-    public class LanDiscovery : SingletonPersistent<LanDiscovery>, INetEventListener
+    public class LanDiscovery : MonoBehaviour, INetEventListener
     {
+        [SerializeField] private RoomManager _roomManager;
         private int _discoveryPort = ConnectionConfig.DISCOVERY_PORT;
         private string _protocol = ConnectionConfig.PROTOCOL;
         private NetManager _netManager;
 
-        public static event Action<RoomInfo> RoomDiscovered;
+        public event Action<RoomInfo> RoomDiscovered;
 
-        protected override void Init()
+        private void Awake()
         {
-            base.Init();
-
             _netManager = new NetManager(this)
             {
                 UnconnectedMessagesEnabled = true,
@@ -72,8 +71,8 @@ namespace BETest.Networking.RoomManagement
 
         private void HandleDiscoveryRequest(IPEndPoint remote, NetPacketReader reader)
         {
-            RoomInfo _advertisedRoom = RoomManager.Instance.CurrentRoom;
-            RoomStateType roomState = RoomManager.Instance.State;
+            RoomInfo _advertisedRoom = _roomManager.CurrentRoom;
+            RoomStateType roomState = _roomManager.State;
             if(roomState != RoomStateType.InRoomHost) return;
             if (_advertisedRoom == null) return;
             if (reader.GetString() != _protocol) return;

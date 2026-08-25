@@ -25,6 +25,14 @@ namespace BETest.Misc
             if (Instance == null) Instance = this as T;
         }
 
+        private void OnDestroy()
+        {
+            if(Instance == this)
+            {
+                Instance = null;
+            }
+        }
+
         protected virtual void OnApplicationQuit()
         {
             Instance = null;

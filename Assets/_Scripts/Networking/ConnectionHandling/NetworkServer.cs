@@ -1,4 +1,5 @@
 using BETest.Config;
+using BETest.Entities;
 using BETest.Enum;
 using BETest.Misc;
 using BETest.Networking.Transport;
@@ -6,14 +7,16 @@ using LiteNetLib;
 using System;
 using System.Net;
 using System.Net.Sockets;
+using Unity.VisualScripting;
+using UnityEngine;
 
 namespace BETest.Networking.ConnectionHandling
 {
-    public class NetworkServer : SingletonPersistent<NetworkServer>, INetEventListener
+    public class NetworkServer : MonoBehaviour, INetEventListener
     {
         private int _gamePort = ConnectionConfig.GAME_PORT;
         private string _connectionKey = ConnectionConfig.CONNECTION_KEY;
-        private NetManager _server;
+        private static NetManager _server;
         private static ServerMessageProcessor _messageProcessor;
         private short _currentTick;
 
@@ -21,8 +24,8 @@ namespace BETest.Networking.ConnectionHandling
 
         public bool IsRunning => _server?.IsRunning ?? false;
 
-        public static event Action<NetPeer> ClientConnected;
-        public static event Action<NetPeer> ClientDisconnected;
+        public event Action<NetPeer> ClientConnected;
+        public event Action<NetPeer> ClientDisconnected;
 
         public void StartServer()
         {
@@ -99,6 +102,16 @@ namespace BETest.Networking.ConnectionHandling
             _messageProcessor.SendPacket(packet, peer, channel, deliveryMethod);
         }
 
+        public static void SendMessageToAll<T>(T packet, TransmissionChannel channel, DeliveryMethod deliveryMethod) where T : class, new()
+        {
+            _messageProcessor.SendPacketToAll(packet, _server, channel, deliveryMethod);
+        }
+
+        public static void SendMessageToAllExcept<T>(T packet, NetPeer excludedPeer, TransmissionChannel channel, DeliveryMethod deliveryMethod) where T : class, new()
+        {
+            _messageProcessor.SendPacketToAllExcept(packet, _server, excludedPeer, channel, deliveryMethod);
+        }
+
         public void OnNetworkError(IPEndPoint endPoint, SocketError socketError)
         {
             CustomLogger.Error("network_error", null, new()
@@ -119,10 +132,9 @@ namespace BETest.Networking.ConnectionHandling
             });
         }
 
-        protected override void OnApplicationQuit()
+        private void OnApplicationQuit()
         {
             StopServer();
-            base.OnApplicationQuit();
         }
     }
 }

@@ -1,6 +1,7 @@
 using BETest.Config;
+using BETest.Entities;
 using BETest.Enum;
-using BETest.Misc;
+using BETest.Infra.DependacyHandling;
 using BETest.Networking.Messages;
 using BETest.Networking.Transport;
 using LiteNetLib;
@@ -11,25 +12,25 @@ using UnityEngine;
 
 namespace BETest.Networking.ConnectionHandling
 {
-    public class NetworkClient : SingletonPersistent<NetworkClient>, INetEventListener
+    public class NetworkClient : MonoBehaviour, INetEventListener
     {
         private string _connectionKey = ConnectionConfig.CONNECTION_KEY;
         private NetManager _client;
         private NetPeer _server;
-        private ClientMessageProcessor _messageProcessor;
-        private string _playerName; 
+        private static ClientMessageProcessor _messageProcessor;
+        private LocalPlayerSession _localPlayerSession;
 
         public NetPeer ServerPeer => _server;
-        public string PlayerName
-        {
-            get => _playerName;
-            set => _playerName = value;
-        }
         public bool IsConnected => _server?.ConnectionState == ConnectionState.Connected;
 
-        public static event Action Connected;
-        public static event Action Disconnected;
-        public static event Action<NetPacketReader, byte, DeliveryMethod> PacketReceived;
+        public event Action Connected;
+        public event Action Disconnected;
+        public event Action<NetPacketReader, byte, DeliveryMethod> PacketReceived;
+
+        private void Start()
+        {
+            _localPlayerSession = DependencyContainer.Instance.LocalPlayerSession;
+        }
 
         public void Connect(string address)
         {
@@ -77,7 +78,15 @@ namespace BETest.Networking.ConnectionHandling
             });
             Connected?.Invoke();
 
-            ConnectRequestMessage connectMessage = new() { Data = new() { PlayerName = _playerName} };
+            ConnectRequestMessage connectMessage = new()
+            {
+                Data = new()
+                {
+                    PlayerName = _localPlayerSession.Username,
+                    PlayerWeaponType = _localPlayerSession.WeaponType,
+                    PlayerCharacterType = _localPlayerSession.CharacterType
+                }
+            };
             SendMessage(connectMessage, TransmissionChannel.GenericRO, DeliveryMethod.ReliableOrdered);
         }        
 
@@ -97,7 +106,7 @@ namespace BETest.Networking.ConnectionHandling
             _messageProcessor.HandleAllPacketsForPeer(reader, peer);
         }
 
-        public void SendMessage<T>(T packet, TransmissionChannel channel, DeliveryMethod deliveryMethod) where T : class, new()
+        public static void SendMessage<T>(T packet, TransmissionChannel channel, DeliveryMethod deliveryMethod) where T : class, new()
         {
             _messageProcessor.SendPacket(packet, channel, deliveryMethod);
         }
@@ -134,10 +143,9 @@ namespace BETest.Networking.ConnectionHandling
             request.Reject();
         }
 
-        protected override void OnApplicationQuit()
+        private void OnApplicationQuit()
         {
             Disconnect();
-            base.OnApplicationQuit();
         }
     }
 }

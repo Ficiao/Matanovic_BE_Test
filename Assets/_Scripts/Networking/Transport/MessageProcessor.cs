@@ -1,5 +1,6 @@
 using BETest.Config;
 using BETest.Enum;
+using BETest.Extensions;
 using BETest.Networking.Messages;
 using LiteNetLib;
 using LiteNetLib.Utils;
@@ -16,6 +17,12 @@ namespace BETest.Networking.Transport
         {
             _packetProcessor = new NetPacketProcessor();
             _writer = new NetDataWriter();
+
+            _packetProcessor.RegisterNestedType((w, v) => w.Put(v), reader => reader.GetVector2());
+            _packetProcessor.RegisterNestedType((w, v) => w.Put(v), reader => reader.GetEntityType());
+            _packetProcessor.RegisterNestedType((w, v) => w.Put(v), reader => reader.GetPlayerCharacterType());
+            _packetProcessor.RegisterNestedType((w, v) => w.Put(v), reader => reader.GetMoveDirFlags());
+            _packetProcessor.RegisterNestedType((w, v) => w.Put(v), reader => reader.GetWeaponType());
 
             RegisterNestedType<ConnectRequestData>();
             RegisterNestedType<ClientPlayerData>();
@@ -47,6 +54,28 @@ namespace BETest.Networking.Transport
                 CustomLogger.Warning("packet_oversize", new() { ["len"] = _writer.Length, ["type"] = typeof(T).Name });
 
             peer.Send(_writer, (byte)channel, deliveryMethod);
+        }
+
+        public void SendPacketToAll<T>(T packet, NetManager server, TransmissionChannel channel, DeliveryMethod deliveryMethod) where T : class, new()
+        {
+            _writer.Reset();
+            _packetProcessor.Write(_writer, packet);
+
+            if (_writer.Length > ConnectionConfig.MAX_PACKET_BYTES)
+                CustomLogger.Warning("packet_oversize", new() { ["len"] = _writer.Length, ["type"] = typeof(T).Name });
+
+            server.SendToAll(_writer, (byte)channel, deliveryMethod);
+        }
+
+        public void SendPacketToAllExcept<T>(T packet, NetManager server, NetPeer excludedPeer, TransmissionChannel channel, DeliveryMethod deliveryMethod) where T : class, new()
+        {
+            _writer.Reset();
+            _packetProcessor.Write(_writer, packet);
+
+            if (_writer.Length > ConnectionConfig.MAX_PACKET_BYTES)
+                CustomLogger.Warning("packet_oversize", new() { ["len"] = _writer.Length, ["type"] = typeof(T).Name });
+
+            server.SendToAll(_writer, (byte)channel, deliveryMethod, excludedPeer);
         }
     }
 }

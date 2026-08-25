@@ -1,31 +1,49 @@
 ﻿using BETest.Config;
+using BETest.Entities;
+using BETest.Enum;
 using BETest.Networking.Messages;
 using BETest.Networking.RoomManagement;
+using BETest.Scriptables;
 using BETest.UI.Views;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace BETest.UI.Controllers
 {
     public class SessionBrowserController : MonoBehaviour
     {
         [SerializeField] private SessionBrowserView _view;
-
+        private LoginController _loginController;
+        private RoomManager _roomManager;
+        private LanDiscovery _lanDiscovery;
         private readonly List<RoomInfo> _rooms = new();
-
         private SessionEntryView _selectedEntry;
         private RoomInfo _selectedRoom;
+        private LocalPlayerSession _localPlayerSession;
+
+        public void Initialize(RoomManager roomManager, LanDiscovery lanDiscovery, WeaponDataScriptable weaponData, LocalPlayerSession localPlayerSession, LoginController loginController)
+        {
+            _roomManager = roomManager;
+            _lanDiscovery = lanDiscovery;
+            _localPlayerSession = localPlayerSession;
+            _loginController = loginController;
+
+            _view.WeaponSelected += _localPlayerSession.SetWeapon;
+            _view.CharacterSelected += _localPlayerSession.SetCharacter;
+            _lanDiscovery.RoomDiscovered += OnRoomDiscovered;
+            _roomManager.StateChanged += OnRoomStateChanged;
+            _loginController.LoginSucceeded += OnLoginSucceeded;
+
+
+            _view.InitializeCharacterSelection(weaponData);
+        }
 
         private void OnEnable()
         {
             _view.RefreshRequested += Refresh;
             _view.JoinRequested += JoinRoom;
             _view.CreateRoomRequested += CreateRoom;
-
-            LanDiscovery.RoomDiscovered += OnRoomDiscovered;
-            RoomManager.StateChanged += OnRoomStateChanged;
-
-            LoginController.LoginSucceeded += OnLoginSucceeded;
         }
 
         private void OnDisable()
@@ -33,11 +51,6 @@ namespace BETest.UI.Controllers
             _view.RefreshRequested -= Refresh;
             _view.JoinRequested -= JoinRoom;
             _view.CreateRoomRequested -= CreateRoom;
-
-            LanDiscovery.RoomDiscovered -= OnRoomDiscovered;
-            RoomManager.StateChanged -= OnRoomStateChanged;
-
-            LoginController.LoginSucceeded -= OnLoginSucceeded; 
         }
 
         private void Refresh()
@@ -49,7 +62,7 @@ namespace BETest.UI.Controllers
             _view.ClearSessions();
             _view.SetJoinInteractable(false);
 
-            RoomManager.Instance.BrowseRooms();
+            _roomManager.BrowseRooms();
         }
 
         private void OnRoomDiscovered(RoomInfo room)
@@ -86,7 +99,7 @@ namespace BETest.UI.Controllers
         {
             if (_selectedRoom == null) return;
 
-            RoomManager.Instance.JoinRoom(_selectedRoom);
+            _roomManager.JoinRoom(_selectedRoom);
         }
 
         private void CreateRoom(string roomName)
@@ -94,7 +107,7 @@ namespace BETest.UI.Controllers
             if (string.IsNullOrWhiteSpace(roomName) || roomName.Length < GameConfig.MIN_ROOM_NAME_LENGTH || roomName.Length > GameConfig.MAX_ROOM_NAME_LENGTH)
                 return;
 
-            RoomManager.Instance.CreateRoom(roomName);
+            _roomManager.CreateRoom(roomName);
         }
 
         private void OnRoomStateChanged(RoomStateType state)

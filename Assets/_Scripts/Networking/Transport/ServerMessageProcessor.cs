@@ -1,5 +1,6 @@
+using BETest.Entities;
+using BETest.Infra.DependacyHandling;
 using BETest.Networking.Messages;
-using LiteNetLib;
 
 namespace BETest.Networking.Transport
 {
@@ -7,6 +8,7 @@ namespace BETest.Networking.Transport
     {
         public ServerMessageProcessor()
         {
+
             Subscribe<ConnectRequestMessage>(ConnectRequestMessageHandler.ProcessMessage);
         }
     }

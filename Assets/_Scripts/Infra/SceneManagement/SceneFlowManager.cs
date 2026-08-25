@@ -1,20 +1,23 @@
 using BETest.Misc;
 using BETest.Networking.Messages;
 using BETest.Networking.RoomManagement;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace BETest.Infra.SceneManagement
 {
-    public class SceneFlowManager : SingletonPersistent<SceneFlowManager>
+    public class SceneFlowManager : MonoBehaviour
     {
+        [SerializeField] private RoomManager _roomManager;
+
         private void OnEnable()
         {
-            RoomManager.RoomEntered += EnterGame;
+            _roomManager.RoomEntered += EnterGame;
         }
 
         private void OnDisable()
         {
-            RoomManager.RoomEntered -= EnterGame;
+            _roomManager.RoomEntered -= EnterGame;
         }
 
         public void EnterGame()

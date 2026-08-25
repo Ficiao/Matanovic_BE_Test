@@ -4,16 +4,21 @@ using BETest.Networking.ConnectionHandling;
 using BETest.Networking.Messages;
 using LiteNetLib;
 using System;
+using UnityEngine;
 
 namespace BETest.Networking.RoomManagement
 {
-    public class RoomManager : SingletonPersistent<RoomManager>
+    public class RoomManager : MonoBehaviour
     {
+        [SerializeField] private NetworkServer _networkServer;
+        [SerializeField] private NetworkClient _networkClient;
+        [SerializeField] private LanDiscovery _lanDiscovery;
+
         public RoomStateType State { get; private set; } = RoomStateType.Idle;
         public RoomInfo CurrentRoom { get; private set; } 
-        public static event Action<RoomStateType> StateChanged;
-        public static event Action RoomEntered;
-        public static event Action<string> RoomOperationFailed;
+        public event Action<RoomStateType> StateChanged;
+        public event Action RoomEntered;
+        public event Action<string> RoomOperationFailed;
 
         public void CreateRoom(string roomName)
         {
@@ -30,13 +35,13 @@ namespace BETest.Networking.RoomManagement
                 GamePort = ConnectionConfig.GAME_PORT,
             };
 
-            NetworkServer.ClientConnected += OnClientConnected;
-            NetworkServer.ClientDisconnected += OnClientDisconnected;
-            NetworkServer.Instance.StartServer();
-            NetworkClient.Connected += OnConnected;
-            NetworkClient.Instance.Connect("127.0.0.1");
+            _networkServer.ClientConnected += OnClientConnected;
+            _networkServer.ClientDisconnected += OnClientDisconnected;
+            _networkServer.StartServer();
+            _networkClient.Connected += OnConnected;
+            _networkClient.Connect("127.0.0.1");
 
-            LanDiscovery.Instance.StartAdvertising();
+            _lanDiscovery.StartAdvertising();
         }
 
         private void OnClientConnected(NetPeer peer)
@@ -59,8 +64,8 @@ namespace BETest.Networking.RoomManagement
 
         public void BrowseRooms()
         {
-            LanDiscovery.Instance.StartBrowsing();
-            LanDiscovery.Instance.Search();
+            _lanDiscovery.StartBrowsing();
+            _lanDiscovery.Search();
         }
 
         public void JoinRoom(RoomInfo room)
@@ -68,13 +73,13 @@ namespace BETest.Networking.RoomManagement
             if (State != RoomStateType.Idle) return;
 
             SetState(RoomStateType.Joining);
-            NetworkClient.Connected += OnConnected;
-            NetworkClient.Instance.Connect(room.HostAddress);
+            _networkClient.Connected += OnConnected;
+            _networkClient.Connect(room.HostAddress);
         }
 
         private void OnConnected()
         {
-            NetworkClient.Connected -= OnConnected;
+            _networkClient.Connected -= OnConnected;
             SetState(State == RoomStateType.Creating ? RoomStateType.InRoomHost : RoomStateType.InRoomClient);
             RoomEntered?.Invoke();
         }
@@ -83,12 +88,11 @@ namespace BETest.Networking.RoomManagement
         {
             if (State == RoomStateType.InRoomHost)
             {
-                NetworkServer.ClientConnected -= OnClientConnected;
-                NetworkServer.ClientDisconnected -= OnClientDisconnected;
+                _networkServer.ClientConnected -= OnClientConnected;
+                _networkServer.ClientDisconnected -= OnClientDisconnected;
             }
 
-            LanDiscovery.Instance.StopAdvertising();
-
+            _lanDiscovery.StopAdvertising();
             CurrentRoom = null;
             SetState(RoomStateType.Idle);
         }

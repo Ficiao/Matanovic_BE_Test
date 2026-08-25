@@ -1,5 +1,5 @@
 using BETest.Config;
-using BETest.Player;
+using BETest.Entities;
 using BETest.UI.Views;
 using System;
 using UnityEngine;
@@ -9,8 +9,14 @@ namespace BETest.UI.Controllers
     public class LoginController : MonoBehaviour
     {
         [SerializeField] private LoginView _view;
+        private LocalPlayerSession _localPlayerSession;
 
-        public static event Action LoginSucceeded;
+        public event Action LoginSucceeded;
+
+        public void Initialize(LocalPlayerSession localPlayerSession)
+        {
+            _localPlayerSession = localPlayerSession;
+        }
 
         private void OnEnable()
         {
@@ -30,7 +36,7 @@ namespace BETest.UI.Controllers
                 return;
             }
 
-            PlayerSession.Instance.SetUsername(username);
+            _localPlayerSession.SetUsername(username);
             _view.Hide();
 
             LoginSucceeded?.Invoke();
