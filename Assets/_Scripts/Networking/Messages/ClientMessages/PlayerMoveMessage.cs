@@ -1,8 +1,8 @@
 namespace BETest.Networking.Messages
 {
-    public class PlayerStateMessage
+    public class PlayerMoveMessage
     {
-        public NetworkEntityStateData Data { get; set; }
+        public PlayerMoveData Data { get; set; }
 
         public override string ToString()
         {

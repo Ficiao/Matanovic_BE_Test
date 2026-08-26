@@ -8,6 +8,7 @@ namespace BETest.Entities
         public string Username { get; private set; }
         public WeaponType WeaponType { get; private set; } 
         public PlayerCharacterType CharacterType { get; private set; }
+        public uint LocalPID { get; private set; }
 
         public void SetUsername(string username)
         {
@@ -24,11 +25,17 @@ namespace BETest.Entities
             CharacterType = characterType;
         }
 
+        public void SetLocalPID(uint PID)
+        {
+            LocalPID = PID;
+        }
+
         public void ResetData()
         {
             Username = null;
             WeaponType = default;
             CharacterType = default;
+            LocalPID = default;
         }
     }
 }

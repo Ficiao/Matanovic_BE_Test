@@ -8,8 +8,9 @@ namespace BETest.Networking.Transport
     {
         public ServerMessageProcessor()
         {
-
             Subscribe<ConnectRequestMessage>(ConnectRequestMessageHandler.ProcessMessage);
+            Subscribe<ConnectRequestMessage>(ConnectRequestMessageHandler.ProcessMessage);
+            Subscribe<PlayerMoveMessage>(PlayerMoveMessageHandler.ProcessMessage);
         }
     }
 }

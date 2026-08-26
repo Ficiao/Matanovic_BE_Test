@@ -67,6 +67,7 @@ namespace BETest.UI.Controllers
 
         private void OnRoomDiscovered(RoomInfo room)
         {
+            if (room.PlayerCount == room.MaxPlayers) return;            
             _rooms.Add(room);
 
             SessionEntryView entry = _view.AddSession(room);
@@ -112,6 +113,7 @@ namespace BETest.UI.Controllers
 
         private void OnRoomStateChanged(RoomStateType state)
         {
+            if (state == RoomStateType.InRoomHost || state == RoomStateType.InRoomClient) return;
             bool waiting = state == RoomStateType.Joining || state == RoomStateType.Creating;
 
             _view.SetInteractionEnabled(!waiting);

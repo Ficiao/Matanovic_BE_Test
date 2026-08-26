@@ -1,8 +1,5 @@
-using BETest.Enum;
-using BETest.Networking.ConnectionHandling;
+using BETest.Infra.DependacyHandling;
 using LiteNetLib;
-using System.Collections.Generic;
-using UnityEngine;
 
 namespace BETest.Networking.Messages
 {
@@ -10,6 +7,8 @@ namespace BETest.Networking.Messages
     {
         public static void ProcessMessage(ConnectAcceptMessage message, NetPeer peer)
         {
+            DependencyContainer.Instance.LocalPlayerSession.SetLocalPID(message.PlayerData.PID);
+            GameSceneContext.Instance.PlayerManager.SetLocalPID(message.PlayerData.PID);
         }
     }
 }

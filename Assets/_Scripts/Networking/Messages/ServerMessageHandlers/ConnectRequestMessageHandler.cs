@@ -1,7 +1,6 @@
 using BETest.Entities;
-using BETest.Enum;
 using BETest.Infra.DependacyHandling;
-using BETest.Networking.ConnectionHandling;
+using BETest.Networking.Managers;
 using LiteNetLib;
 using System.Collections.Generic;
 using UnityEngine;
@@ -23,10 +22,10 @@ namespace BETest.Networking.Messages
                 return;
             }
 
-            NetworkObjectStateManager objectManager = GameSceneContext.Instance?.GetNetworkObjectStateManager();
-            if(objectManager == null)
+            NetworkObjectStateManager objectManager = GameSceneContext.Instance?.ObjectStateManager;
+            if (objectManager == null)
             {
-                CustomLogger.Warning($"disconnecting_peer", new() { ["id"] = peer?.Id, ["reason"] = "state_manager_not_found" });
+                CustomLogger.Warning($"disconnecting_peer", new() { ["id"] = peer?.Id, ["reason"] = "game_scene_not_ready" });
                 peer.Disconnect();
                 return;
             }

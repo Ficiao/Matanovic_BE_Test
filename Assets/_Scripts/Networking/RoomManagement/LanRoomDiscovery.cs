@@ -12,12 +12,17 @@ namespace BETest.Networking.RoomManagement
 {
     public class LanDiscovery : MonoBehaviour, INetEventListener
     {
-        [SerializeField] private RoomManager _roomManager;
+        private RoomManager _roomManager;
         private int _discoveryPort = ConnectionConfig.DISCOVERY_PORT;
         private string _protocol = ConnectionConfig.PROTOCOL;
         private NetManager _netManager;
 
         public event Action<RoomInfo> RoomDiscovered;
+
+        public void Initialize(RoomManager roomManager)
+        {
+            _roomManager = roomManager;
+        }
 
         private void Awake()
         {

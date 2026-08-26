@@ -17,6 +17,7 @@ namespace BETest.Misc
             string randWord = "";
             for (int i = 0; i < 8; i++) randWord += _chars[Random.Range(0, _chars.Length - 1)];
             _playerName.text = randWord;
+            randWord = "";
             for (int i = 0; i < 8; i++) randWord += _chars[Random.Range(0, _chars.Length - 1)];
             _roomName.text = randWord;
         }

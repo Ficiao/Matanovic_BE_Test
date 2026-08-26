@@ -13,6 +13,10 @@ namespace BETest.Networking.Transport
         public ClientMessageProcessor()
         {
             Subscribe<ConnectAcceptMessage>(ConnectAcceptMessageHandler.ProcessMessage);
+            Subscribe<NetworkEntitiesSpawnMessage>(NetworkEntitiesSpawnMessageHandler.ProcessMessage);
+            Subscribe<ConnectAcceptMessage>(ConnectAcceptMessageHandler.ProcessMessage);
+            Subscribe<NetworkEntitiesSpawnMessage>(NetworkEntitiesSpawnMessageHandler.ProcessMessage);
+            Subscribe<NetworkEntityStatesMessage>(NetworkEntityStatesMessageHandler.ProcessMessage);
         }
 
         public void SendPacket<T>(T packet, TransmissionChannel channel, DeliveryMethod deliveryMethod) where T : class, new()

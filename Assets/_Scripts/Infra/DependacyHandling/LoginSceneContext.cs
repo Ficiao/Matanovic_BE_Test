@@ -7,15 +7,15 @@ namespace BETest.Infra.DependacyHandling
 {
     public class LoginSceneContext : Singleton<LoginSceneContext>
     {
-        [SerializeField] private SessionBrowserController _sessionBrowser;
-        [SerializeField] private LoginController _loginController;
+        [field: SerializeField] public SessionBrowserController SessionBrowserController { get; private set; }
+        [field: SerializeField] public LoginController LoginController { get; private set; }
 
         private void Start()
         {
             DependencyContainer container = DependencyContainer.Instance;
 
-            _sessionBrowser.Initialize(container.RoomManager, container.LanDiscovery, container.WeaponData, container.LocalPlayerSession, _loginController);
-            _loginController.Initialize(container.LocalPlayerSession);
+            SessionBrowserController.Initialize(container.RoomManager, container.LanDiscovery, container.WeaponData, container.LocalPlayerSession, LoginController);
+            LoginController.Initialize(container.LocalPlayerSession);
         }
     }
 }

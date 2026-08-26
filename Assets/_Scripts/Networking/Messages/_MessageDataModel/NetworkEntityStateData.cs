@@ -9,6 +9,7 @@ namespace BETest.Networking.Messages
     public struct NetworkEntityStateData : INetSerializable
     {
         public uint ObjectID;
+        public uint StateAuthorityPID;
         public EntityType EntityType;
         public EntityUpdateFlags UpdateFlags;
         public uint SeqAcc;
@@ -17,9 +18,10 @@ namespace BETest.Networking.Messages
         public MoveDirFlags Directions;
         public float MoveSpeed;
 
-        public void Init(uint objectID, EntityType entityType, ushort x, ushort y, ushort z, short rotation, float moveSpeed)
+        public void Init(uint objectID, uint stateAuthorityPID, EntityType entityType, ushort x, ushort y, short rotation, float moveSpeed)
         {
             ObjectID = objectID;
+            StateAuthorityPID = stateAuthorityPID;
             EntityType = entityType;
             SeqAcc = 0;
             X = x;
@@ -30,7 +32,7 @@ namespace BETest.Networking.Messages
 
         public static int Size(EntityUpdateFlags flags)
         {
-            int size = sizeof(uint) * 2 + sizeof(byte) + sizeof(ushort);
+            int size = sizeof(uint) * 3 + sizeof(byte) + sizeof(ushort);
 
             if ((flags & EntityUpdateFlags.Position) != 0) size += sizeof(ushort) * 2;
             if ((flags & EntityUpdateFlags.MoveDir) != 0) size += sizeof(ushort);
@@ -54,6 +56,7 @@ namespace BETest.Networking.Messages
         public void Serialize(NetDataWriter writer)
         {
             writer.Put(ObjectID);
+            writer.Put(StateAuthorityPID);
             writer.Put(EntityType);
             writer.Put((ushort)UpdateFlags); 
             writer.Put(SeqAcc);
@@ -70,6 +73,7 @@ namespace BETest.Networking.Messages
         public void Deserialize(NetDataReader reader)
         {
             ObjectID = reader.GetUInt();
+            StateAuthorityPID = reader.GetUInt();
             EntityType = reader.GetEntityType();
             UpdateFlags = (EntityUpdateFlags)reader.GetUShort();
             SeqAcc = reader.GetUInt();
@@ -85,7 +89,7 @@ namespace BETest.Networking.Messages
 
         public override string ToString()
         {
-            string log = $"Id: {ObjectID}, EntityType: {EntityType}, Seq: {SeqAcc}";
+            string log = $"Id: {ObjectID}, StateAuthorityID: {StateAuthorityPID}, EntityType: {EntityType}, Seq: {SeqAcc}";
             if ((UpdateFlags & EntityUpdateFlags.Position) != 0) log += $", Position: ({Mathf.HalfToFloat(X)}, {Mathf.HalfToFloat(Y)}), ";
             if ((UpdateFlags & EntityUpdateFlags.MoveDir) != 0) log += $", MoveDir: ({Directions}), ";
             if ((UpdateFlags & EntityUpdateFlags.MoveSpeed) != 0) log += $", MoveSpeed: {MoveSpeed}";

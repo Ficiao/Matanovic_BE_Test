@@ -1,28 +1,25 @@
 using BETest.Misc;
 using BETest.Networking.Messages;
 using BETest.Networking.RoomManagement;
+using System;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
 namespace BETest.Infra.SceneManagement
 {
     public class SceneFlowManager : MonoBehaviour
     {
-        [SerializeField] private RoomManager _roomManager;
-
-        private void OnEnable()
-        {
-            _roomManager.RoomEntered += EnterGame;
-        }
-
-        private void OnDisable()
-        {
-            _roomManager.RoomEntered -= EnterGame;
-        }
+        private bool _loading;
 
         public void EnterGame()
         {
-            SceneManager.LoadScene((int)SceneType.GameScene);
+            if (_loading) return;
+
+            _loading = true;
+
+            AsyncOperation operation = SceneManager.LoadSceneAsync((int)SceneType.GameScene);
+            operation.completed += _ => _loading = false;
         }
     }
 }

@@ -3062,13 +3062,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1412061437}
+  - component: {fileID: 1412061442}
   - component: {fileID: 1412061436}
   - component: {fileID: 1412061435}
   - component: {fileID: 1412061438}
   - component: {fileID: 1412061439}
   - component: {fileID: 1412061440}
   - component: {fileID: 1412061441}
-  - component: {fileID: 1412061442}
   m_Layer: 0
   m_Name: NetworkComponents
   m_TagString: Untagged
@@ -3127,7 +3127,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f2f3511e6292e642a42970d3113664b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BETest.Networking.RoomManagment.LanDiscovery
-  _roomManager: {fileID: 0}
 --- !u!114 &1412061439
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3140,9 +3139,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 512a4a12c6c6ab34495596dd2f3a85f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BETest.Networking.RoomManagment.RoomManager
-  _networkServer: {fileID: 1412061436}
-  _networkClient: {fileID: 1412061435}
-  _lanDiscovery: {fileID: 1412061438}
 --- !u!114 &1412061440
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3155,7 +3151,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9883ed25ed0441a41afc89f9aa93d905, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BETest.Infra.SceneManagement.SceneFlowManager
-  _roomManager: {fileID: 1412061439}
 --- !u!114 &1412061441
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4867,7 +4862,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09d1e564716bd504cbd9812fa11bf838, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _autofillActive: 0
+  _autofillActive: 1
   _playerName: {fileID: 1136943523}
   _roomName: {fileID: 930258659}
 --- !u!4 &1944480693
@@ -4929,8 +4924,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a4003e6b18635194c960cd3158f25e22, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BETest.Infra.DependacyHandling.LoginSceneContext
-  _sessionBrowser: {fileID: 185600349}
-  _loginController: {fileID: 185600347}
+  <SessionBrowserController>k__BackingField: {fileID: 185600349}
+  <LoginController>k__BackingField: {fileID: 185600347}
 --- !u!1 &2015851398
 GameObject:
   m_ObjectHideFlags: 0

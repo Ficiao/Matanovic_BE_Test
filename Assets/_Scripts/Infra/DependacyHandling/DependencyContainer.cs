@@ -18,5 +18,11 @@ namespace BETest.Infra.DependacyHandling
         [field: SerializeField] public LocalPlayerSession LocalPlayerSession { get; private set; }
         [field: SerializeField] public ObjectPrefabsScriptable ObjectPrefabs { get; private set; }
         [field: SerializeField] public WeaponDataScriptable WeaponData { get; private set; }
+
+        private void Start()
+        {
+            RoomManager.Initialize(Server, Client, LanDiscovery, SceneFlowManager);
+            LanDiscovery.Initialize(RoomManager);
+        }
     }
 }

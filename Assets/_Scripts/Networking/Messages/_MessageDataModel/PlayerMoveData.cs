@@ -9,19 +9,15 @@ namespace BETest.Networking.Messages
 
         public float X;
         public float Y;
-        public float Z;
 
         public MoveDirFlags Directions;   
-        public short Rotation;
 
-        public void Init(float x, float y, float z, short rotation)
+        public void Init(float x, float y, MoveDirFlags directions)
         {
             Seq = 0;
             X = x;
             Y = y;
-            Z = z;
-            Rotation = rotation;
-            Directions = MoveDirFlags.Grounded;
+            Directions = directions;
         }
 
         public void Serialize(NetDataWriter writer)
@@ -29,8 +25,6 @@ namespace BETest.Networking.Messages
             writer.Put(Seq);
             writer.Put(X);
             writer.Put(Y);
-            writer.Put(Z);
-            writer.Put(Rotation);
 
             byte packed = (byte)Directions;
             writer.Put(packed);
@@ -41,8 +35,6 @@ namespace BETest.Networking.Messages
             Seq = reader.GetUInt();
             X = reader.GetFloat();
             Y = reader.GetFloat();
-            Z = reader.GetFloat();
-            Rotation = reader.GetShort();
 
             byte packed = reader.GetByte();
             Directions = (MoveDirFlags)(packed); 
@@ -50,7 +42,7 @@ namespace BETest.Networking.Messages
 
         public override string ToString()
         {
-            return $"Seq: {Seq}, Pos: ({X:F2},{Y:F2},{Z:F2}), Dirs: {Directions}";
+            return $"Seq: {Seq}, Pos: ({X:F2},{Y:F2}), Dirs: {Directions}";
         }
     }
 }

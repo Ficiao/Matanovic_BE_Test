@@ -1,13 +1,11 @@
 using BETest.Config;
-using BETest.Entities;
 using BETest.Enum;
-using BETest.Misc;
+using BETest.Networking.Managers;
 using BETest.Networking.Transport;
 using LiteNetLib;
 using System;
 using System.Net;
 using System.Net.Sockets;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace BETest.Networking.ConnectionHandling
@@ -27,9 +25,9 @@ namespace BETest.Networking.ConnectionHandling
         public event Action<NetPeer> ClientConnected;
         public event Action<NetPeer> ClientDisconnected;
 
-        public void StartServer()
+        public bool StartServer()
         {
-            if (IsRunning) return;
+            if (IsRunning) return true;
 
             _messageProcessor = new();
 
@@ -46,13 +44,15 @@ namespace BETest.Networking.ConnectionHandling
                 {
                     ["port"] = _gamePort
                 });
-                return;
+                return false;
             }
 
             CustomLogger.Info("server_started", new()
             {
                 ["port"] = _gamePort
             });
+
+            return true;
         }
 
         public void StopServer()

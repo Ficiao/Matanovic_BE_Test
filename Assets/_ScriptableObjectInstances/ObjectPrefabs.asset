@@ -12,4 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 925974750b7b69e44884cf997b7768f6, type: 3}
   m_Name: ObjectPrefabs
   m_EditorClassIdentifier: Assembly-CSharp::BETest.Scriptables.ObjectPrefabsScriptable
-  _prefabs: []
+  _prefabs:
+  - PrefabType: 1
+    Prefab: {fileID: 5071226609214229439, guid: c9d4ca3cd02736e46844f6e2ed975238, type: 3}
+  - PrefabType: 2
+    Prefab: {fileID: 8692700538020238465, guid: f0a83fd91b738bd49a048c02ed8ec6f9, type: 3}
