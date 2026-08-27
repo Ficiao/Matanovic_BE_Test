@@ -33,7 +33,8 @@ namespace BETest.Networking.ConnectionHandling
 
             _server = new NetManager(this)
             {
-                AutoRecycle = true
+                AutoRecycle = true,
+                ChannelsCount = 2,
             };
 
             CustomLogger.Info("server_starting");

@@ -12,5 +12,7 @@ namespace BETest.Config
         public const float OBJECT_Z_POSITION = 2;
         public const float TICK_DELTA = 1f / 60f;
         public const float SERVER_TICK_DELTA = 1f / 20f;
+        public const int MAX_JUMPS = 2;
+        public const float ROOM_AUTO_REFRESH_INTERVAL = 3f;
     }
 }

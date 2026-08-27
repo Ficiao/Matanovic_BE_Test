@@ -11,10 +11,12 @@ namespace BETest.Networking.Managers
     public class NetworkObjectManager : MonoBehaviour
     {
         private PlayerManager _playerManager;
+        private ProjectileManager _projectileManager;
 
-        public void Initialize(PlayerManager playerManager)
+        public void Initialize(PlayerManager playerManager, ProjectileManager projectileManager)
         {
             _playerManager = playerManager;
+            _projectileManager = projectileManager;
         }
 
         public void SpawnEntity(NetworkEntitySpawnData data)
@@ -25,14 +27,19 @@ namespace BETest.Networking.Managers
                     _playerManager.SpawnPlayer(data);
                     break;
 
-                    // case EntityType.NPC:
-                    //     _npcManager.SpawnNPC(data);
-                    //     break;
-
-                    // case EntityType.Projectile:
-                    //     _projectileManager.SpawnProjectile(data);
-                    //     break;
+                case EntityType.Mob:
+                    break;
             }
+        }
+
+        public void SpawnEntity(ProjectileSpawnData data)
+        {
+            _projectileManager.SpawnProjectile(data);
+        }
+
+        public void HandleProjectileEnd(ProjectileEndData data)
+        {
+            _projectileManager.HandleProjectileEnd(data);
         }
 
         public void DespawnEntity(uint objectID, EntityType entityType)
@@ -52,6 +59,8 @@ namespace BETest.Networking.Managers
                 entity.HandleTick();
                 SendStateAuthorityUpdate(entity);
             }
+
+            _projectileManager.HandleTick();
         }
 
         private void SendStateAuthorityUpdate(NetworkEntity entity)
@@ -66,17 +75,11 @@ namespace BETest.Networking.Managers
 
         private void SendPlayerMove(Player player)
         {
-            Vector3 position = player.transform.position;
+            NetworkEntityStateData lastState = player.GetEntityStateForBroadcast();          
 
             PlayerMoveMessage message = new()
             {
-                Data = new PlayerMoveData
-                {
-                    Seq = player.EntityState.SeqAcc,
-                    X = position.x,
-                    Y = position.y,
-                    Directions = player.EntityState.Directions
-                }
+                Data = new PlayerMoveData(lastState),
             };
 
             NetworkClient.SendMessage(message, TransmissionChannel.StateUpdate, DeliveryMethod.Unreliable);

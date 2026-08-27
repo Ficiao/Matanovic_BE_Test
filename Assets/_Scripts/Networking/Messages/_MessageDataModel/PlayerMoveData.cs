@@ -7,17 +7,28 @@ namespace BETest.Networking.Messages
     {
         public uint Seq;
 
-        public float X;
-        public float Y;
+        public ushort X;
+        public ushort Y;
+        public ushort AimAngle;
 
         public MoveDirFlags Directions;   
 
-        public void Init(float x, float y, MoveDirFlags directions)
+        public PlayerMoveData(NetworkEntityStateData stateData)
+        {
+            X = stateData.X;
+            Y = stateData.Y;
+            Directions = stateData.Directions;
+            AimAngle = stateData.AimAngle;
+            Seq = stateData.SeqAcc;
+        }
+
+        public PlayerMoveData(ushort x, ushort y, MoveDirFlags directions, ushort angle)
         {
             Seq = 0;
             X = x;
             Y = y;
             Directions = directions;
+            AimAngle = angle;
         }
 
         public void Serialize(NetDataWriter writer)
@@ -25,6 +36,7 @@ namespace BETest.Networking.Messages
             writer.Put(Seq);
             writer.Put(X);
             writer.Put(Y);
+            writer.Put(AimAngle);
 
             byte packed = (byte)Directions;
             writer.Put(packed);
@@ -33,8 +45,9 @@ namespace BETest.Networking.Messages
         public void Deserialize(NetDataReader reader)
         {
             Seq = reader.GetUInt();
-            X = reader.GetFloat();
-            Y = reader.GetFloat();
+            X = reader.GetUShort();
+            Y = reader.GetUShort();
+            AimAngle = reader.GetUShort();
 
             byte packed = reader.GetByte();
             Directions = (MoveDirFlags)(packed); 
@@ -42,7 +55,7 @@ namespace BETest.Networking.Messages
 
         public override string ToString()
         {
-            return $"Seq: {Seq}, Pos: ({X:F2},{Y:F2}), Dirs: {Directions}";
+            return $"Seq: {Seq}, Pos: ({X:F2},{Y:F2}), Aim angle {AimAngle}, Dirs: {Directions}";
         }
     }
 }

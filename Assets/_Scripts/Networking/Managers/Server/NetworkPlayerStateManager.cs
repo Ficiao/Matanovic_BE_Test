@@ -78,14 +78,35 @@ namespace BETest.Networking.Managers
             if (moveData.Seq <= state.SeqAcc) return false;
             if (!ValidateMove(state, moveData)) return false;
 
-            state.X = Mathf.FloatToHalf(moveData.X);
-            state.Y = Mathf.FloatToHalf(moveData.Y);
-            state.Directions = moveData.Directions;
-            state.SeqAcc = moveData.Seq;
+            EntityUpdateFlags flags = EntityUpdateFlags.None;
 
+            //Debug.Log(moveData.Directions);
+
+            if (state.X != moveData.X || state.Y != moveData.Y)
+            {
+                state.X = moveData.X;
+                state.Y = moveData.Y;
+                flags |= EntityUpdateFlags.Position;
+            }
+
+            if (state.Directions != moveData.Directions)
+            {
+                state.Directions = moveData.Directions;
+                flags |= EntityUpdateFlags.MoveDir;
+            }
+
+            if (state.AimAngle != moveData.AimAngle)
+            {
+                state.AimAngle = moveData.AimAngle;
+                flags |= EntityUpdateFlags.Aim;
+            }
+
+            state.SeqAcc = moveData.Seq;
             _states[PID] = state;
 
-            EntityUpdateFlags flags = EntityUpdateFlags.Position | EntityUpdateFlags.MoveDir;
+            if (flags == EntityUpdateFlags.None) return true;
+
+            //Debug.Log($"New state: {state}, update flags: {flags}");
 
             if (_dirtyFlags.TryGetValue(PID, out EntityUpdateFlags dirtyFlags))
                 _dirtyFlags[PID] = dirtyFlags | flags;
@@ -125,6 +146,11 @@ namespace BETest.Networking.Managers
 
                 yield return new NetworkEntitySpawnData(prefabType, state, playerData);
             }
+        }
+
+        public bool TryGetPlayerData(uint PID, out ClientPlayerData playerData)
+        {
+            return _playerDatas.TryGetValue(PID, out playerData);
         }
     }
 }

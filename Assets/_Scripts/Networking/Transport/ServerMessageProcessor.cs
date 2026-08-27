@@ -11,6 +11,7 @@ namespace BETest.Networking.Transport
             Subscribe<ConnectRequestMessage>(ConnectRequestMessageHandler.ProcessMessage);
             Subscribe<ConnectRequestMessage>(ConnectRequestMessageHandler.ProcessMessage);
             Subscribe<PlayerMoveMessage>(PlayerMoveMessageHandler.ProcessMessage);
+            Subscribe<PlayerShootMessage>(PlayerShootMessageHandler.ProcessMessage);
         }
     }
 }

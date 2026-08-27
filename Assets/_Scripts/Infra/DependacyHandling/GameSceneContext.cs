@@ -13,6 +13,7 @@ namespace BETest.Infra.DependacyHandling
         [field: SerializeField] public NetworkObjectManager NetworkObjectManager { get; private set; }
         [field: SerializeField] public PlayerManager PlayerManager { get; private set; }
         [field: SerializeField] public GameTickRunner GameTickRunner { get; private set; }
+        [field: SerializeField] public ProjectileManager ProjectileManager { get; private set; }
         public NetworkObjectStateManager ObjectStateManager { get; private set; }
         public NetworkStateBroadcastService NetworkStateBroadcastService { get; private set; }
 
@@ -20,9 +21,9 @@ namespace BETest.Infra.DependacyHandling
         {
             DependencyContainer container = DependencyContainer.Instance;
 
-            NetworkObjectManager.Initialize(PlayerManager);
-            PlayerManager.Initialize(container.ObjectPrefabs, container.RoomManager);
-            GameTickRunner.Initialize(NetworkObjectManager, NetworkStateBroadcastService);
+            ProjectileManager.Initialize(container.WeaponData, container.Server.IsRunning);
+            NetworkObjectManager.Initialize(PlayerManager, ProjectileManager);
+            PlayerManager.Initialize(container.ObjectPrefabs, container.RoomManager, container.WeaponData);
 
             if (container.Server.IsRunning)
             {
@@ -31,6 +32,8 @@ namespace BETest.Infra.DependacyHandling
                 NetworkStateBroadcastService = new NetworkStateBroadcastService();
                 NetworkStateBroadcastService.Initialize(ObjectStateManager);
             }
+
+            GameTickRunner.Initialize(NetworkObjectManager, NetworkStateBroadcastService);
 
             container.RoomManager.GameSceneReady();
         }

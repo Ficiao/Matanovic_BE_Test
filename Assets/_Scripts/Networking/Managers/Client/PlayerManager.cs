@@ -7,6 +7,7 @@ using BETest.World.Visuals;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static BETest.Scriptables.WeaponDataScriptable;
 
 namespace BETest.Networking.Managers
 {
@@ -20,14 +21,16 @@ namespace BETest.Networking.Managers
         private uint _localPID;
         private bool _hasLocalPID;
         private Player _localPlayer;
+        private WeaponDataScriptable _weaponData;
 
         public IReadOnlyDictionary<uint, Player> Players => _players;
         public Player LocalPlayer => _localPlayer;
 
-        public void Initialize(ObjectPrefabsScriptable objectPrefabs, RoomManager roomManager)
+        public void Initialize(ObjectPrefabsScriptable objectPrefabs, RoomManager roomManager, WeaponDataScriptable waponData)
         {
             _objectPrefabs = objectPrefabs;
             _roomManager = roomManager;
+            _weaponData = waponData;
         }
 
         public void SetLocalPID(uint localPID)
@@ -46,8 +49,9 @@ namespace BETest.Networking.Managers
 
             CharacterModelController modelPrefab = _objectPrefabs.GetPrefab(data.PrefabType).GetComponent<CharacterModelController>();
 
+            WeaponData weaponData = _weaponData.GetWeaponData(data.ClientPlayerData.PlayerWeaponType);
             Player player = Instantiate(_playerPrefab, position, Quaternion.identity);
-            player.Init(data, hasStateAuthority, modelPrefab);
+            player.Init(data, hasStateAuthority, modelPrefab, weaponData);
 
             _players.Add(pid, player);
             if (hasStateAuthority)

@@ -17,6 +17,8 @@ namespace BETest.Networking.Transport
             Subscribe<ConnectAcceptMessage>(ConnectAcceptMessageHandler.ProcessMessage);
             Subscribe<NetworkEntitiesSpawnMessage>(NetworkEntitiesSpawnMessageHandler.ProcessMessage);
             Subscribe<NetworkEntityStatesMessage>(NetworkEntityStatesMessageHandler.ProcessMessage);
+            Subscribe<ProjectileSpawnMessage>(ProjectileSpawnMessageHandler.ProcessMessage);
+            Subscribe<ProjectileEndMessage>(ProjectileEndMessageHandler.ProcessMessage);
         }
 
         public void SendPacket<T>(T packet, TransmissionChannel channel, DeliveryMethod deliveryMethod) where T : class, new()

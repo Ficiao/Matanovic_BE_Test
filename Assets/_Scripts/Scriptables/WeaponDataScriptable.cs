@@ -1,3 +1,4 @@
+using BETest.Entities;
 using BETest.Enum;
 using System;
 using System.Collections.Generic;
@@ -14,8 +15,9 @@ namespace BETest.Scriptables
         {
             public WeaponType WeaponType;
             public Sprite WeaponImage;
-            //public Projectile WeaponPrefab;
+            public Projectile WeaponPrefab;
             public float FireRate;
+            public int Damage;
         }
 
         [SerializeField] private List<WeaponData> _weapons;

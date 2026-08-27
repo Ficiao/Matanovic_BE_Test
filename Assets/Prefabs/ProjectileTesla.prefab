@@ -19384,6 +19384,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6983067284333611842}
+  - component: {fileID: 7295014645456375934}
   m_Layer: 0
   m_Name: ProjectileTesla
   m_TagString: Untagged
@@ -19407,3 +19408,17 @@ Transform:
   - {fileID: 6983067284258149148}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7295014645456375934
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6983067284333611845}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e776aea4e03b7494fb68e4068aac69d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BETest.Entities.TeslaProjectile
+  _movementSpeed: 10
+  _maxDistance: 20

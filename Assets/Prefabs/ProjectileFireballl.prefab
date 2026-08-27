@@ -34030,6 +34030,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6905402249226363212}
+  - component: {fileID: 7332904974175218641}
   m_Layer: 0
   m_Name: ProjectileFireballl
   m_TagString: Untagged
@@ -34054,6 +34055,24 @@ Transform:
   - {fileID: 2424810120919024574}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7332904974175218641
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6905402249226363211}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 574366359197e9941a5bd6a83fcc0cd8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BETest.Entities.FireProjectile
+  _movementSpeed: 10
+  _maxDistance: 20
+  _explosionRadius: 2
+  _explosionDuration: 0.5
+  _projectileEffect: {fileID: 4833934733175560707}
+  _explosionEffect: {fileID: 4531977619640824949}
 --- !u!1 &6905402249361146582
 GameObject:
   m_ObjectHideFlags: 0

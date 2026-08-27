@@ -4,5 +4,6 @@ namespace BETest.Enum
     {
         Player = 1,
         Mob = 2,
+        Projectile = 3,
     }
 }

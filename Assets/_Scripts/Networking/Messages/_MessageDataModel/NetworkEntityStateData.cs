@@ -16,7 +16,7 @@ namespace BETest.Networking.Messages
 
         public ushort X, Y;
         public MoveDirFlags Directions;
-        public float MoveSpeed;
+        public ushort AimAngle;
 
         public void Init(uint objectID, uint stateAuthorityPID, EntityType entityType, ushort x, ushort y, short rotation, float moveSpeed)
         {
@@ -26,7 +26,6 @@ namespace BETest.Networking.Messages
             SeqAcc = 0;
             X = x;
             Y = y;
-            MoveSpeed = moveSpeed;
             Directions = MoveDirFlags.Grounded;
         }
 
@@ -36,7 +35,7 @@ namespace BETest.Networking.Messages
 
             if ((flags & EntityUpdateFlags.Position) != 0) size += sizeof(ushort) * 2;
             if ((flags & EntityUpdateFlags.MoveDir) != 0) size += sizeof(ushort);
-            if ((flags & EntityUpdateFlags.MoveSpeed) != 0) size += sizeof(float);
+            if ((flags & EntityUpdateFlags.Aim) != 0) size += sizeof(ushort);
 
             return size;
         }
@@ -50,7 +49,7 @@ namespace BETest.Networking.Messages
                 Y = newData.Y;
             }
             if ((flags & EntityUpdateFlags.MoveDir) != 0) Directions = newData.Directions;
-            if ((flags & EntityUpdateFlags.MoveSpeed) != 0) MoveSpeed = newData.MoveSpeed;
+            if ((flags & EntityUpdateFlags.Aim) != 0) AimAngle = newData.AimAngle;
         }
 
         public void Serialize(NetDataWriter writer)
@@ -67,7 +66,7 @@ namespace BETest.Networking.Messages
                 writer.Put(Y);
             }
             if ((UpdateFlags & EntityUpdateFlags.MoveDir) != 0) writer.Put(Directions);
-            if ((UpdateFlags & EntityUpdateFlags.MoveSpeed) != 0) writer.Put(MoveSpeed);
+            if ((UpdateFlags & EntityUpdateFlags.Aim) != 0) writer.Put(AimAngle);
         }
 
         public void Deserialize(NetDataReader reader)
@@ -84,7 +83,7 @@ namespace BETest.Networking.Messages
                 Y = reader.GetUShort();
             }
             if ((UpdateFlags & EntityUpdateFlags.MoveDir) != 0) Directions = reader.GetMoveDirFlags();
-            if ((UpdateFlags & EntityUpdateFlags.MoveSpeed) != 0) MoveSpeed = reader.GetFloat();
+            if ((UpdateFlags & EntityUpdateFlags.Aim) != 0) AimAngle = reader.GetUShort();
         }
 
         public override string ToString()
@@ -92,7 +91,7 @@ namespace BETest.Networking.Messages
             string log = $"Id: {ObjectID}, StateAuthorityID: {StateAuthorityPID}, EntityType: {EntityType}, Seq: {SeqAcc}";
             if ((UpdateFlags & EntityUpdateFlags.Position) != 0) log += $", Position: ({Mathf.HalfToFloat(X)}, {Mathf.HalfToFloat(Y)}), ";
             if ((UpdateFlags & EntityUpdateFlags.MoveDir) != 0) log += $", MoveDir: ({Directions}), ";
-            if ((UpdateFlags & EntityUpdateFlags.MoveSpeed) != 0) log += $", MoveSpeed: {MoveSpeed}";
+            if ((UpdateFlags & EntityUpdateFlags.Aim) != 0) log += $", AimAngle: {AimAngle:F1}";
             return log;
         }
     }

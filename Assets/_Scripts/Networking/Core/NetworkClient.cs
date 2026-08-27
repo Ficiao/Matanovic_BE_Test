@@ -40,7 +40,8 @@ namespace BETest.Networking.ConnectionHandling
 
             _client = new NetManager(this)
             {
-                AutoRecycle = true
+                AutoRecycle = true,
+                ChannelsCount = 2,
             };
 
             _client.Start();

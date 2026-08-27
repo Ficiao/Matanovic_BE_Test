@@ -1,3 +1,4 @@
+using BETest.Flags;
 using BETest.Networking.Messages;
 using UnityEngine;
 
@@ -9,7 +10,11 @@ namespace BETest.Entities
         [SerializeField] protected CharacterController _characterController;
         protected NetworkEntityStateData _entityState;
 
-        public NetworkEntityStateData EntityState => _entityState;
+        public NetworkEntityStateData GetEntityStateForBroadcast()
+        {
+            _entityState.SeqAcc++;
+            return _entityState;
+        }
 
         public virtual void Init(NetworkEntitySpawnData data, bool hasStateAuthority)
         {
@@ -24,10 +29,12 @@ namespace BETest.Entities
             _entityState.UpdateValues(state);
         }
 
-        protected void UpdateStateFromTransform()
+        protected void UpdateStateFromTransform(MoveDirFlags direction, ushort AimAngle)
         {
             _entityState.X = Mathf.FloatToHalf(transform.position.x);
             _entityState.Y = Mathf.FloatToHalf(transform.position.y);
+            _entityState.Directions = direction;
+            _entityState.AimAngle = AimAngle;
         }
     }
 }

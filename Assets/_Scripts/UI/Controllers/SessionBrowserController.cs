@@ -5,6 +5,7 @@ using BETest.Networking.Messages;
 using BETest.Networking.RoomManagement;
 using BETest.Scriptables;
 using BETest.UI.Views;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,6 +22,8 @@ namespace BETest.UI.Controllers
         private SessionEntryView _selectedEntry;
         private RoomInfo _selectedRoom;
         private LocalPlayerSession _localPlayerSession;
+        private string _roomIDToReselect;
+        private Coroutine _autoRefreshCoroutine;
 
         public void Initialize(RoomManager roomManager, LanDiscovery lanDiscovery, WeaponDataScriptable weaponData, LocalPlayerSession localPlayerSession, LoginController loginController)
         {
@@ -51,10 +54,17 @@ namespace BETest.UI.Controllers
             _view.RefreshRequested -= Refresh;
             _view.JoinRequested -= JoinRoom;
             _view.CreateRoomRequested -= CreateRoom;
+            if (_autoRefreshCoroutine != null)
+            {
+                StopCoroutine(_autoRefreshCoroutine);
+                _autoRefreshCoroutine = null;
+            }
         }
 
         private void Refresh()
         {
+            _roomIDToReselect = _selectedRoom?.Id;
+
             _rooms.Clear();
             _selectedRoom = null;
             _selectedEntry = null;
@@ -67,11 +77,29 @@ namespace BETest.UI.Controllers
 
         private void OnRoomDiscovered(RoomInfo room)
         {
-            if (room.PlayerCount == room.MaxPlayers) return;            
+            if (room.PlayerCount == room.MaxPlayers) return;
+            if (_rooms.Exists(existingRoom => existingRoom.Id == room.Id)) return;
             _rooms.Add(room);
 
             SessionEntryView entry = _view.AddSession(room);
             entry.SelectionChanged += OnEntrySelectionChanged;
+
+            if (room.Id == _roomIDToReselect)
+            {
+                SelectEntry(entry);
+                _roomIDToReselect = null;
+            }
+        }
+
+        private void SelectEntry(SessionEntryView entry)
+        {
+            if (_selectedEntry != null && _selectedEntry != entry) _selectedEntry.SetSelected(false);
+
+            _selectedEntry = entry;
+            _selectedRoom = entry.Room;
+
+            entry.SetSelected(true);
+            _view.SetJoinInteractable(true);
         }
 
         private void OnEntrySelectionChanged(SessionEntryView entry, bool selected)
@@ -84,16 +112,10 @@ namespace BETest.UI.Controllers
                     _selectedRoom = null;
                     _view.SetJoinInteractable(false);
                 }
-
                 return;
             }
 
-            if (_selectedEntry != null && _selectedEntry != entry) _selectedEntry.SetSelected(false);
-
-            _selectedEntry = entry;
-            _selectedRoom = entry.Room;
-
-            _view.SetJoinInteractable(true);
+            SelectEntry(entry);
         }
 
         private void JoinRoom()
@@ -124,6 +146,20 @@ namespace BETest.UI.Controllers
         {
             _view.Show();
             Refresh();
+
+            if (_autoRefreshCoroutine == null) _autoRefreshCoroutine = StartCoroutine(AutoRefresh());
+        }
+
+        private IEnumerator AutoRefresh()
+        {
+            WaitForSecondsRealtime wait = new(GameConfig.ROOM_AUTO_REFRESH_INTERVAL);
+
+            while (true)
+            {
+                yield return wait;
+
+                if (_roomManager.State == RoomStateType.Idle) Refresh();
+            }
         }
     }
 }

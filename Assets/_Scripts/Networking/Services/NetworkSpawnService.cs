@@ -46,5 +46,25 @@ namespace BETest.Networking.Services
 
             NetworkServer.SendMessageToAllExcept(message, peer, TransmissionChannel.GenericRO, DeliveryMethod.ReliableOrdered);
         }
+
+        public static void BroadcastProjectileSpawn(ProjectileSpawnData data)
+        {
+            ProjectileSpawnMessage message = new()
+            {
+                Data = data,
+            };
+
+            NetworkServer.SendMessageToAll(message, TransmissionChannel.GenericRO, DeliveryMethod.ReliableOrdered);
+        }
+
+        public static void BroadcastProjectileEnd(ProjectileEndData data)
+        {
+            ProjectileEndMessage message = new()
+            {
+                Data = data,
+            };
+
+            NetworkServer.SendMessageToAll(message, TransmissionChannel.GenericRO, DeliveryMethod.ReliableOrdered);
+        }
     }
 }
