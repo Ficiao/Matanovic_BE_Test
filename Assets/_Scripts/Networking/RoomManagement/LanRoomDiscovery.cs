@@ -12,7 +12,6 @@ namespace BETest.Networking.RoomManagement
     public class LanRoomDiscovery : MonoBehaviour, INetEventListener
     {
         private RoomManager _roomManager;
-        private int _discoveryPort = ConnectionConfig.DISCOVERY_PORT;
         private string _protocol = ConnectionConfig.PROTOCOL;
         private NetManager _netManager;
 
@@ -32,12 +31,28 @@ namespace BETest.Networking.RoomManagement
             };
         }
 
-        public void StartAdvertising()
+        public bool StartAdvertising(int gamePort)
         {
             Stop();
 
-            _netManager.BroadcastReceiveEnabled = true;
-            _netManager.Start(_discoveryPort);
+            int discoveryPort = gamePort + ConnectionConfig.DISCOVERY_PORT_OFFSET;
+
+            if (!_netManager.Start(discoveryPort))
+            {
+                CustomLogger.Error("discovery_start_failed", null, new()
+                {
+                    ["port"] = discoveryPort
+                });
+
+                return false;
+            }
+
+            CustomLogger.Info("discovery_started", new()
+            {
+                ["port"] = discoveryPort
+            });
+
+            return true;
         }
 
         public void StopAdvertising()
@@ -62,10 +77,14 @@ namespace BETest.Networking.RoomManagement
 
         public void Search()
         {
-            NetDataWriter writer = new NetDataWriter();
+            NetDataWriter writer = new();
             writer.Put(_protocol);
 
-            _netManager.SendBroadcast(writer, _discoveryPort);
+            for (int gamePort = ConnectionConfig.GAME_PORT; gamePort <= ConnectionConfig.MAX_GAME_PORT; gamePort++)
+            {
+                int discoveryPort = gamePort + ConnectionConfig.DISCOVERY_PORT_OFFSET;
+                _netManager.SendBroadcast(writer, discoveryPort);
+            }
         }
 
         private void Update()

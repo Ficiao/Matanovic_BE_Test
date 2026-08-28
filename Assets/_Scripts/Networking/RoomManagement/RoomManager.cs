@@ -109,7 +109,7 @@ namespace BETest.Networking.RoomManagement
             {
                 case RoomStateType.Creating:
                     SetState(RoomStateType.InRoomHost);
-                    _lanDiscovery.StartAdvertising();
+                    _lanDiscovery.StartAdvertising(CurrentRoom.GamePort);
                     break;
 
                 case RoomStateType.Joining:
