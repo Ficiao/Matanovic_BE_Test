@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BETest.Entities.Enemy
   _prefabType: 6
-  _moveSpeed: 6
+  _moveSpeed: 8
   _interpolationSpeed: 15
   _spawnWeight: 10
   _maxHealth: 2

@@ -58,7 +58,6 @@ namespace BETest.Networking.Managers
             }
 
             if (_states.Count >= _spawnManager.MaxAliveEnemies) return;
-            if (_spawnManager.EnemySpawnInterval <= 0f) return;
 
             _spawnTimer += GameConfig.TICK_DELTA;
 

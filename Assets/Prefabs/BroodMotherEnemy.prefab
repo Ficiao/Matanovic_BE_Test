@@ -47,10 +47,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BETest.Entities.Enemy
   _prefabType: 7
-  _moveSpeed: 3
+  _moveSpeed: 4.5
   _interpolationSpeed: 15
   _spawnWeight: 1
-  _maxHealth: 8
+  _maxHealth: 12
   _contactDamage: 50
   _hitCollider: {fileID: 7653900777227274208}
   _playerMask:

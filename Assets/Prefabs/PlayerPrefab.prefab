@@ -72,9 +72,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BETest.Entities.Player
   _characterController: {fileID: 5768817322918420637}
-  _moveSpeed: 10
-  _jumpHeight: 5
-  _gravity: -50
+  _moveSpeed: 17.5
+  _jumpHeight: 6
+  _gravity: -60
   _interpolationSpeed: 30
   _modelContainer: {fileID: 4819390837547941194}
 --- !u!1 &2262899448340548790

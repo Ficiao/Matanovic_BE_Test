@@ -26,6 +26,7 @@ namespace BETest.Infra.DependacyHandling
         [field: SerializeField] public CameraController CameraController { get; private set; }
         [field: SerializeField] public TerrainGenerator TerrainGenerator { get; private set; }
         [field: SerializeField] public GameAudioManager GameAudioManager { get; private set; }
+        [field: SerializeField] public NetworkStatsUIController NetworkStatsUIController { get; private set; }
         public NetworkObjectStateManager ObjectStateManager { get; private set; }
         public NetworkStateBroadcastService NetworkStateBroadcastService { get; private set; }
 
@@ -52,6 +53,7 @@ namespace BETest.Infra.DependacyHandling
             NetworkObjectManager.Initialize(PlayerManager, ProjectileManager, EnemyManager, ObjectStateManager);
             GameTickRunner.Initialize(NetworkObjectManager, NetworkStateBroadcastService, ObjectStateManager);
             CameraController.Initialize(PlayerManager);
+            NetworkStatsUIController.Initialize(container.Client, container.Server, container.RoomManager);
 
             container.RoomManager.GameSceneReady();
         }

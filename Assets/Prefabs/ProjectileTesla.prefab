@@ -19421,7 +19421,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BETest.Entities.TeslaProjectile
   _movementSpeed: 20
-  _maxDistance: 40
+  _maxDistance: 30
   _hitRadius: 0.25
   _enemyMask:
     serializedVersion: 2

@@ -39,6 +39,8 @@ namespace BETest.Networking
                 _objectManager.HandleTick();
             }
 
+            if (_stateBroadcastService == null) return;
+
             _serverTimer += deltaTime;
 
             while (_serverTimer >= GameConfig.SERVER_TICK_DELTA)

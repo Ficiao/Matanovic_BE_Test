@@ -11,20 +11,20 @@ namespace BETest.Networking.ConnectionHandling
 {
     public class NetworkServer : MonoBehaviour, INetEventListener
     {
-        private int _gamePort = ConnectionConfig.GAME_PORT;
         private string _connectionKey = ConnectionConfig.CONNECTION_KEY;
         private static NetManager _server;
         private static ServerMessageProcessor _messageProcessor;
         private short _currentTick;
 
         public short CurrentTick => _currentTick;
-
         public static bool IsRunning => _server?.IsRunning ?? false;
+        public long BytesReceived => _server?.Statistics.BytesReceived ?? 0;
+        public long BytesSent => _server?.Statistics.BytesSent ?? 0;
 
         public event Action<NetPeer> OnClientConnected;
         public event Action<NetPeer> OnClientDisconnected;
 
-        public bool StartServer()
+        public bool StartServer(int port)
         {
             if (IsRunning) return true;
 
@@ -34,22 +34,20 @@ namespace BETest.Networking.ConnectionHandling
             {
                 AutoRecycle = true,
                 ChannelsCount = 2,
+                EnableStatistics = true,
             };
 
-            CustomLogger.Info("server_starting");
-
-            if (!_server.Start(_gamePort))
+            if (!_server.Start(port))
             {
-                CustomLogger.Error("server_start_failed", null, new()
-                {
-                    ["port"] = _gamePort
-                });
+                _server.Stop(false);
+                _server = null;
+                _messageProcessor = null;
                 return false;
             }
 
             CustomLogger.Info("server_started", new()
             {
-                ["port"] = _gamePort
+                ["port"] = port
             });
 
             return true;

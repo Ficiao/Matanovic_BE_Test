@@ -22,6 +22,8 @@ namespace BETest.Networking.ConnectionHandling
 
         public NetPeer ServerPeer => _server;
         public bool IsConnected => _server?.ConnectionState == ConnectionState.Connected;
+        public long BytesReceived => _client?.Statistics.BytesReceived ?? 0;
+        public long BytesSent => _client?.Statistics.BytesSent ?? 0;
 
         public event Action OnConnected;
         public event Action OnDisconnected;
@@ -32,7 +34,7 @@ namespace BETest.Networking.ConnectionHandling
             _localPlayerSession = DependencyContainer.Instance.LocalPlayerSession;
         }
 
-        public void Connect(string address)
+        public void Connect(string address, int port)
         {
             Disconnect();
 
@@ -42,11 +44,10 @@ namespace BETest.Networking.ConnectionHandling
             {
                 AutoRecycle = true,
                 ChannelsCount = 2,
+                EnableStatistics = true,
             };
 
             _client.Start();
-
-            int port = ConnectionConfig.GAME_PORT;
             CustomLogger.Info("client_connecting", new()
             {
                 ["addr"] = address,

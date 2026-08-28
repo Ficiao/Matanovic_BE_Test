@@ -38,30 +38,43 @@ namespace BETest.Networking.RoomManagement
 
             SetState(RoomStateType.Creating);
 
+            _networkServer.OnClientConnected += OnClientConnected;
+            _networkServer.OnClientDisconnected += OnClientDisconnected;
+
+            CustomLogger.Info("server_starting");
+            int gamePort = FindAvailableGamePort();
+
+            if (gamePort == -1)
+            {
+                _networkServer.OnClientConnected -= OnClientConnected;
+                _networkServer.OnClientDisconnected -= OnClientDisconnected;
+
+                SetState(RoomStateType.Idle);
+                OnRoomOperationFailed?.Invoke("Failed to start server.");
+                return;
+            }
+
             CurrentRoom = new RoomInfo
             {
                 Id = Guid.NewGuid().ToString(),
                 Name = roomName,
                 PlayerCount = 0,
                 MaxPlayers = GameConfig.MAX_PLAYERS_PER_ROOM,
-                GamePort = ConnectionConfig.GAME_PORT,
+                GamePort = gamePort,
             };
 
-            _networkServer.OnClientConnected += OnClientConnected;
-            _networkServer.OnClientDisconnected += OnClientDisconnected;
             WorldSeed = Guid.NewGuid().GetHashCode();
+            _sceneFlowManager.EnterGame();
+        }
 
-            if (!_networkServer.StartServer())
+        private int FindAvailableGamePort()
+        {
+            for (int port = ConnectionConfig.GAME_PORT; port <= ConnectionConfig.MAX_GAME_PORT; port++)
             {
-                CurrentRoom = null;
-                SetState(RoomStateType.Idle);
-                OnRoomOperationFailed?.Invoke("Failed to start server.");
-                CustomLogger.Error("server_start_failed");
-
-                return;
+                if (_networkServer.StartServer(port)) return port;
             }
 
-            _sceneFlowManager.EnterGame();
+            return -1;
         }
 
         public void JoinRoom(RoomInfo room)
@@ -81,11 +94,11 @@ namespace BETest.Networking.RoomManagement
             switch (State)
             {
                 case RoomStateType.Creating:
-                    _networkClient.Connect("127.0.0.1");
+                    _networkClient.Connect("127.0.0.1", CurrentRoom.GamePort);
                     break;
 
                 case RoomStateType.Joining:
-                    _networkClient.Connect(CurrentRoom.HostAddress);
+                    _networkClient.Connect(CurrentRoom.HostAddress, CurrentRoom.GamePort);
                     break;
             }
         }
