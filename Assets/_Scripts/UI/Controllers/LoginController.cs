@@ -1,5 +1,6 @@
 using BETest.Config;
 using BETest.Entities;
+using BETest.Scriptables;
 using BETest.UI.Views;
 using System;
 using UnityEngine;
@@ -9,23 +10,41 @@ namespace BETest.UI.Controllers
     public class LoginController : MonoBehaviour
     {
         [SerializeField] private LoginView _view;
+        private VolumeSettingsScriptable _volumeSettings;
         private LocalPlayerSession _localPlayerSession;
 
-        public event Action LoginSucceeded;
+        public event Action OnLoginSucceeded;
 
-        public void Initialize(LocalPlayerSession localPlayerSession)
+        public void Initialize(LocalPlayerSession localPlayerSession, VolumeSettingsScriptable volumeSettings)
         {
             _localPlayerSession = localPlayerSession;
+            _volumeSettings = volumeSettings;
+
+            _view.SetVolumes(_volumeSettings.MusicVolume, _volumeSettings.SFXVolume);
         }
 
         private void OnEnable()
         {
-            _view.LoginRequested += Login;
-        }
+            _view.OnLoginRequested += Login;
+            _view.OnMusicVolumeChanged += OnMusicVolumeChanged;
+            _view.OnSFXVolumeChanged += OnSFXVolumeChanged;
+        }        
 
         private void OnDisable()
         {
-            _view.LoginRequested -= Login;
+            _view.OnLoginRequested -= Login;
+            _view.OnMusicVolumeChanged -= OnMusicVolumeChanged;
+            _view.OnSFXVolumeChanged -= OnSFXVolumeChanged;
+        }
+
+        private void OnMusicVolumeChanged(float volume)
+        {
+            _volumeSettings.SetMusicVolume(volume);
+        }
+
+        private void OnSFXVolumeChanged(float volume)
+        {
+            _volumeSettings.SetSFXVolume(volume);
         }
 
         private void Login(string username)
@@ -39,7 +58,15 @@ namespace BETest.UI.Controllers
             _localPlayerSession.SetUsername(username);
             _view.Hide();
 
-            LoginSucceeded?.Invoke();
+            OnLoginSucceeded?.Invoke();
+        }
+
+        public void TryAutoLogin()
+        {
+            if (string.IsNullOrWhiteSpace(_localPlayerSession.Username)) return;
+
+            _view.Hide();
+            OnLoginSucceeded?.Invoke();
         }
     }
 }

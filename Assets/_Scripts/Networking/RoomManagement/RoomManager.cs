@@ -1,6 +1,5 @@
 using BETest.Config;
 using BETest.Infra.SceneManagement;
-using BETest.Misc;
 using BETest.Networking.ConnectionHandling;
 using BETest.Networking.Messages;
 using LiteNetLib;
@@ -13,21 +12,24 @@ namespace BETest.Networking.RoomManagement
     {
         private NetworkServer _networkServer;
         private NetworkClient _networkClient;
-        private LanDiscovery _lanDiscovery;
+        private LanRoomDiscovery _lanDiscovery;
         private SceneFlowManager _sceneFlowManager;
+        private bool _leavingRoom;
 
+        public int WorldSeed { get; private set; }
         public RoomStateType State { get; private set; } = RoomStateType.Idle;
         public RoomInfo CurrentRoom { get; private set; } 
 
-        public event Action<RoomStateType> StateChanged;
-        public event Action<string> RoomOperationFailed;
+        public event Action<RoomStateType> OnStateChanged;
+        public event Action<string> OnRoomOperationFailed;
 
-        public void Initialize(NetworkServer networkServer,  NetworkClient networkClient, LanDiscovery lanDiscovery, SceneFlowManager sceneFlowManager)
+        public void Initialize(NetworkServer networkServer, NetworkClient networkClient, LanRoomDiscovery lanDiscovery, SceneFlowManager sceneFlowManager)
         {
             _networkServer = networkServer;
             _networkClient = networkClient;
             _lanDiscovery = lanDiscovery;
             _sceneFlowManager = sceneFlowManager;
+            _networkClient.OnDisconnected += OnServerDisconnected;
         }
 
         public void CreateRoom(string roomName)
@@ -45,14 +47,15 @@ namespace BETest.Networking.RoomManagement
                 GamePort = ConnectionConfig.GAME_PORT,
             };
 
-            _networkServer.ClientConnected += OnClientConnected;
-            _networkServer.ClientDisconnected += OnClientDisconnected;
+            _networkServer.OnClientConnected += OnClientConnected;
+            _networkServer.OnClientDisconnected += OnClientDisconnected;
+            WorldSeed = Guid.NewGuid().GetHashCode();
 
             if (!_networkServer.StartServer())
             {
                 CurrentRoom = null;
                 SetState(RoomStateType.Idle);
-                RoomOperationFailed?.Invoke("Failed to start server.");
+                OnRoomOperationFailed?.Invoke("Failed to start server.");
                 CustomLogger.Error("server_start_failed");
 
                 return;
@@ -64,6 +67,8 @@ namespace BETest.Networking.RoomManagement
         public void JoinRoom(RoomInfo room)
         {
             if (State != RoomStateType.Idle) return;
+
+            _lanDiscovery.Stop();
 
             CurrentRoom = room;
             SetState(RoomStateType.Joining);
@@ -115,7 +120,7 @@ namespace BETest.Networking.RoomManagement
         {
             if (CurrentRoom == null) return;
 
-            CurrentRoom.PlayerCount--;
+            CurrentRoom.PlayerCount = Mathf.Max(0, CurrentRoom.PlayerCount - 1);
         }
 
         public void BrowseRooms()
@@ -126,27 +131,57 @@ namespace BETest.Networking.RoomManagement
 
         public void LeaveRoom()
         {
+            if (State == RoomStateType.Idle) return;
+
+            _leavingRoom = true;
+
             bool wasHost = State == RoomStateType.Creating || State == RoomStateType.InRoomHost;
 
             if (wasHost)
             {
-                _networkServer.ClientConnected -= OnClientConnected;
-                _networkServer.ClientDisconnected -= OnClientDisconnected;
+                _networkServer.OnClientConnected -= OnClientConnected;
+                _networkServer.OnClientDisconnected -= OnClientDisconnected;
             }
 
-            _lanDiscovery.StopAdvertising();
-            _networkClient.Disconnect();
-
+            _lanDiscovery.Stop();
             if (wasHost) _networkServer.StopServer();
+            _networkClient.Disconnect();
 
             CurrentRoom = null;
             SetState(RoomStateType.Idle);
+
+            _sceneFlowManager.EnterLogin();
+
+            _leavingRoom = false;
+        }
+
+        private void OnServerDisconnected()
+        {
+            if (_leavingRoom || State == RoomStateType.Idle) return;
+
+            bool wasHost = State == RoomStateType.Creating || State == RoomStateType.InRoomHost;
+
+            if (wasHost)
+            {
+                _networkServer.OnClientConnected -= OnClientConnected;
+                _networkServer.OnClientDisconnected -= OnClientDisconnected;
+
+                _networkServer.StopServer();
+            }
+
+            _lanDiscovery.Stop();
+            _networkClient.Disconnect();
+
+            CurrentRoom = null;
+            SetState(RoomStateType.Idle);
+
+            _sceneFlowManager.EnterLogin();
         }
 
         private void SetState(RoomStateType state)
         {
             State = state;
-            StateChanged?.Invoke(state);
+            OnStateChanged?.Invoke(state);
         }
     }
 }

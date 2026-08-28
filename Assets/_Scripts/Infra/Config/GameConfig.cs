@@ -1,5 +1,3 @@
-using UnityEngine;
-
 namespace BETest.Config
 {
     public static class GameConfig
@@ -14,5 +12,8 @@ namespace BETest.Config
         public const float SERVER_TICK_DELTA = 1f / 20f;
         public const int MAX_JUMPS = 2;
         public const float ROOM_AUTO_REFRESH_INTERVAL = 3f;
+        public const int PLAYER_MAX_HEALTH = 100;
+        public const float PLAYER_RESPAWN_DELAY = 5f;
+        public const float PLAYER_DEATH_Y = -27.5f;
     }
 }

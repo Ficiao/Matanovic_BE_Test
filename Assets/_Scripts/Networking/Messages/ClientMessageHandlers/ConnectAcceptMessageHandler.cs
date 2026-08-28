@@ -7,8 +7,12 @@ namespace BETest.Networking.Messages
     {
         public static void ProcessMessage(ConnectAcceptMessage message, NetPeer peer)
         {
-            DependencyContainer.Instance.LocalPlayerSession.SetLocalPID(message.PlayerData.PID);
-            GameSceneContext.Instance.PlayerManager.SetLocalPID(message.PlayerData.PID);
+            DependencyContainer container = DependencyContainer.Instance;
+            GameSceneContext sceneContext = GameSceneContext.Instance;
+
+            sceneContext.TerrainGenerator.Initialize(message.WorldSeed, sceneContext.PlayerManager);
+            container.LocalPlayerSession.SetLocalPID(message.PlayerData.PID);
+            sceneContext.PlayerManager.SetLocalPID(message.PlayerData.PID);
         }
     }
 }

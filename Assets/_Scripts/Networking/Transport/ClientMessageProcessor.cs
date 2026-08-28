@@ -19,6 +19,10 @@ namespace BETest.Networking.Transport
             Subscribe<NetworkEntityStatesMessage>(NetworkEntityStatesMessageHandler.ProcessMessage);
             Subscribe<ProjectileSpawnMessage>(ProjectileSpawnMessageHandler.ProcessMessage);
             Subscribe<ProjectileEndMessage>(ProjectileEndMessageHandler.ProcessMessage);
+            Subscribe<PlayerHealthMessage>(PlayerHealthMessageHandler.ProcessMessage);
+            Subscribe<NetworkEntitiesDespawnMessage>(NetworkEntitiesDespawnMessageHandler.ProcessMessage);
+            Subscribe<PlayerScoreMessage>(PlayerScoreMessageHandler.ProcessMessage);
+            Subscribe<PlayerScoreRemovedMessage>(PlayerScoreRemovedMessageHandler.ProcessMessage);
         }
 
         public void SendPacket<T>(T packet, TransmissionChannel channel, DeliveryMethod deliveryMethod) where T : class, new()

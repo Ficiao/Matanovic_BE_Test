@@ -19420,5 +19420,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e776aea4e03b7494fb68e4068aac69d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BETest.Entities.TeslaProjectile
-  _movementSpeed: 10
-  _maxDistance: 20
+  _movementSpeed: 20
+  _maxDistance: 40
+  _hitRadius: 0.25
+  _enemyMask:
+    serializedVersion: 2
+    m_Bits: 128

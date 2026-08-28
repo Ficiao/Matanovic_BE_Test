@@ -30,6 +30,11 @@ namespace BETest.Entities
             LocalPID = PID;
         }
 
+        public void ClearRoomData()
+        {
+            LocalPID = default;
+        }
+
         public void ResetData()
         {
             Username = null;

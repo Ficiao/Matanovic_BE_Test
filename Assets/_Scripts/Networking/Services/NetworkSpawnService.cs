@@ -1,3 +1,4 @@
+using BETest.Config;
 using BETest.Enum;
 using BETest.Networking.ConnectionHandling;
 using BETest.Networking.Messages;
@@ -10,12 +11,39 @@ namespace BETest.Networking.Services
     {
         public static void SendSpawn(NetPeer peer, IEnumerable<NetworkEntitySpawnData> spawnDatas)
         {
+            const int packetReserveBytes = 64;
+
+            int maxBatchSize = ConnectionConfig.MAX_PACKET_BYTES - packetReserveBytes;
+            int batchSize = sizeof(ushort);
+
+            List<NetworkEntitySpawnData> batch = new();
+
+            foreach (NetworkEntitySpawnData spawnData in spawnDatas)
+            {
+                int spawnSize = NetworkEntitySpawnData.Size(spawnData.StateData.EntityType);
+
+                if (batch.Count > 0 && batchSize + spawnSize > maxBatchSize)
+                {
+                    SendSpawnBatch(peer, batch);
+                    batch.Clear();
+                    batchSize = sizeof(ushort);
+                }
+
+                batch.Add(spawnData);
+                batchSize += spawnSize;
+            }
+
+            if (batch.Count > 0) SendSpawnBatch(peer, batch);
+        }
+
+        private static void SendSpawnBatch(NetPeer peer, List<NetworkEntitySpawnData> spawnDatas)
+        {
             NetworkEntitiesSpawnMessage message = new()
             {
                 SpawnDatas = new NetworkEntitySpawnDatas
                 {
-                    NetworkEntitySpawns = new List<NetworkEntitySpawnData>(spawnDatas)
-                }
+                    NetworkEntitySpawns = spawnDatas,
+                },
             };
 
             NetworkServer.SendMessage(message, peer, TransmissionChannel.GenericRO, DeliveryMethod.ReliableOrdered);
@@ -45,6 +73,19 @@ namespace BETest.Networking.Services
             };
 
             NetworkServer.SendMessageToAllExcept(message, peer, TransmissionChannel.GenericRO, DeliveryMethod.ReliableOrdered);
+        }
+
+        public static void BroadcastDespawn(NetworkEntityDespawnData data)
+        {
+            NetworkEntitiesDespawnMessage message = new()
+            {
+                DespawnDatas = new NetworkEntityDespawnDatas
+                {
+                    NetworkEntityDespawns = new List<NetworkEntityDespawnData> { data },
+                }
+            };
+
+            NetworkServer.SendMessageToAll(message, TransmissionChannel.GenericRO, DeliveryMethod.ReliableOrdered);
         }
 
         public static void BroadcastProjectileSpawn(ProjectileSpawnData data)

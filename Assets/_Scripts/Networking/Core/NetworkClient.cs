@@ -23,9 +23,9 @@ namespace BETest.Networking.ConnectionHandling
         public NetPeer ServerPeer => _server;
         public bool IsConnected => _server?.ConnectionState == ConnectionState.Connected;
 
-        public event Action Connected;
-        public event Action Disconnected;
-        public event Action<NetPacketReader, byte, DeliveryMethod> PacketReceived;
+        public event Action OnConnected;
+        public event Action OnDisconnected;
+        public event Action<NetPacketReader, byte, DeliveryMethod> OnPacketReceived;
 
         private void Start()
         {
@@ -77,7 +77,7 @@ namespace BETest.Networking.ConnectionHandling
                 ["serverPeerId"] = (uint)peer.Id,
                 ["remote"] = peer.Address?.ToString()
             });
-            Connected?.Invoke();
+            OnConnected?.Invoke();
 
             ConnectRequestMessage connectMessage = new()
             {
@@ -99,7 +99,7 @@ namespace BETest.Networking.ConnectionHandling
                 ["reason"] = disconnectInfo.Reason.ToString()
             });
             _server = null;
-            Disconnected?.Invoke();
+            OnDisconnected?.Invoke();
         }
 
         public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, byte channelNumber, DeliveryMethod deliveryMethod)

@@ -36,6 +36,8 @@ namespace BETest.Networking.Transport
             RegisterNestedType<PlayerShootData>();
             RegisterNestedType<ProjectileSpawnData>();
             RegisterNestedType<ProjectileEndData>();
+            RegisterNestedType<PlayerHealthData>();
+            RegisterNestedType<PlayerScoreData>();
         }
 
         public void RegisterNestedType<T>() where T : struct, INetSerializable

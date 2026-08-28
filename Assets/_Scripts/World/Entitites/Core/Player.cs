@@ -3,18 +3,18 @@ using BETest.Enum;
 using BETest.Flags;
 using BETest.Networking.ConnectionHandling;
 using BETest.Networking.Messages;
-using BETest.Scriptables;
 using BETest.World.Visuals;
 using LiteNetLib;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using static BETest.Scriptables.WeaponDataScriptable;
 
 namespace BETest.Entities
 {
+    [RequireComponent(typeof(CharacterController))]
     public class Player : NetworkEntity
     {
+        [SerializeField] protected CharacterController _characterController;
         [SerializeField] private float _moveSpeed = 6f;
         [SerializeField] private float _jumpHeight = 2.5f;
         [SerializeField] private float _gravity = -25f;
@@ -33,13 +33,18 @@ namespace BETest.Entities
         private float _targetAimAngle;
         private WeaponData _weaponData;
         private float _nextFireTime;
+        private bool _inputEnabled = true;
+
+        public int Health { get; private set; }
+        public int MaxHealth => GameConfig.PLAYER_MAX_HEALTH;
+        public bool IsAlive => Health > 0;
 
         public void Init(NetworkEntitySpawnData data, bool hasStateAuthority, CharacterModelController modelPrefab, WeaponData weaponData)
         {
             base.Init(data, hasStateAuthority);
 
             _weaponData = weaponData;
-
+            Health = MaxHealth;
             _characterModel = Instantiate(modelPrefab, _modelContainer);
             _characterModel.SetPlayerName(data.ClientPlayerData.PlayerName);
             float aimAngle = Mathf.HalfToFloat(data.StateData.AimAngle);
@@ -51,6 +56,8 @@ namespace BETest.Entities
             _jumpsRemaining = GameConfig.MAX_JUMPS;
             _camera = Camera.main;
         }
+
+        public void SetInputEnabled(bool enabled) => _inputEnabled = enabled;
 
         public override void HandleTick()
         {
@@ -114,7 +121,7 @@ namespace BETest.Entities
 
                 if (Keyboard.current.aKey.isPressed) _horizontalInput += 1f;
                 if (Keyboard.current.dKey.isPressed) _horizontalInput -= 1f;
-                if (Keyboard.current.spaceKey.wasPressedThisFrame) _jumpRequested = true;
+                if (Keyboard.current.spaceKey.wasPressedThisFrame || Keyboard.current.wKey.wasPressedThisFrame) _jumpRequested = true;
 
                 UpdateAim();
                 UpdateFire();
@@ -142,7 +149,7 @@ namespace BETest.Entities
 
         private void UpdateFire()
         {
-            if (!Mouse.current.leftButton.isPressed) return;
+            if (!Mouse.current.leftButton.isPressed || !_inputEnabled) return;
             if (Time.time < _nextFireTime) return;
 
             _nextFireTime = Time.time + _weaponData.FireRate;
@@ -156,6 +163,11 @@ namespace BETest.Entities
             };
 
             NetworkClient.SendMessage(message, TransmissionChannel.GenericRO, DeliveryMethod.ReliableOrdered);
+        }
+
+        public void SetHealth(int health)
+        {
+            Health = Mathf.Clamp(health, 0, MaxHealth);
         }
     }
 }

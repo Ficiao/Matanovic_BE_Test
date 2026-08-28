@@ -17,9 +17,11 @@ namespace BETest.World.Visuals
         {
             _startCameraX = _camera.position.x;
             _startPosition = transform.position;
+
             _tileWidth = _tileA.rect.width;
-            _tileA.localPosition = Vector3.zero;
-            _tileB.localPosition = Vector3.right * _tileWidth;
+
+            _tileA.anchoredPosition = Vector2.zero;
+            _tileB.anchoredPosition = Vector2.right * _tileWidth;
         }
 
         private void LateUpdate()
@@ -31,6 +33,7 @@ namespace BETest.World.Visuals
         private void UpdateParallax()
         {
             float cameraDelta = _camera.position.x - _startCameraX;
+
             transform.position = new Vector3(_startPosition.x + cameraDelta * _parallaxFactor, _startPosition.y, _startPosition.z);
         }
 
@@ -38,10 +41,17 @@ namespace BETest.World.Visuals
         {
             float cameraLocalX = transform.InverseTransformPoint(_camera.position).x;
 
-            if (cameraLocalX - _tileA.localPosition.x > _tileWidth) _tileA.localPosition = _tileB.localPosition + Vector3.right * _tileWidth;
-            if (cameraLocalX - _tileB.localPosition.x > _tileWidth) _tileB.localPosition = _tileA.localPosition + Vector3.right * _tileWidth;
-            if (_tileA.localPosition.x - cameraLocalX > _tileWidth) _tileA.localPosition = _tileB.localPosition - Vector3.right * _tileWidth;
-            if (_tileB.localPosition.x - cameraLocalX > _tileWidth) _tileB.localPosition = _tileA.localPosition - Vector3.right * _tileWidth;
+            if (cameraLocalX - _tileA.localPosition.x > _tileWidth)
+                _tileA.localPosition = _tileB.localPosition + Vector3.right * _tileWidth;
+
+            if (cameraLocalX - _tileB.localPosition.x > _tileWidth)
+                _tileB.localPosition = _tileA.localPosition + Vector3.right * _tileWidth;
+
+            if (_tileA.localPosition.x - cameraLocalX > _tileWidth)
+                _tileA.localPosition = _tileB.localPosition - Vector3.right * _tileWidth;
+
+            if (_tileB.localPosition.x - cameraLocalX > _tileWidth)
+                _tileB.localPosition = _tileA.localPosition - Vector3.right * _tileWidth;
         }
     }
 }

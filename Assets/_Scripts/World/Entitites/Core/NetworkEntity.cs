@@ -4,10 +4,8 @@ using UnityEngine;
 
 namespace BETest.Entities
 {
-    [RequireComponent(typeof(CharacterController))]
     public abstract class NetworkEntity : NetworkObject
     {
-        [SerializeField] protected CharacterController _characterController;
         protected NetworkEntityStateData _entityState;
 
         public NetworkEntityStateData GetEntityStateForBroadcast()
@@ -35,6 +33,12 @@ namespace BETest.Entities
             _entityState.Y = Mathf.FloatToHalf(transform.position.y);
             _entityState.Directions = direction;
             _entityState.AimAngle = AimAngle;
+        }
+
+        protected void UpdatePositionStateFromTransform()
+        {
+            _entityState.X = Mathf.FloatToHalf(transform.position.x);
+            _entityState.Y = Mathf.FloatToHalf(transform.position.y);
         }
     }
 }

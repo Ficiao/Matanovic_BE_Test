@@ -1,18 +1,25 @@
-using BETest.Enum;
 using BETest.Networking.Messages;
 
 namespace BETest.Entities
 {
     public class TeslaProjectile : Projectile
     {
-        protected override void HandleAuthorityCollision()
+        protected override void HandleCollisions()
         {
-            // TODO
-        }
+            int hitCount = GetEnemyHits(_hitRadius);
 
-        public override void HandleProjectileEnd(ProjectileEndData data)
+            for (int i = 0; i < hitCount; i++)
+            {
+                if (!TryGetEnemy(_enemyHitBuffer[i], out Enemy enemy)) continue;
+
+                enemy.TakeDamage(_damage, OwnerPID);
+                EndProjectile();
+
+                return;
+            }
+        }
+        protected override void OnProjectileEnd(ProjectileEndData data)
         {
-            transform.position = data.Position;
             _projectileManager.ReleaseProjectile(this);
         }
     }

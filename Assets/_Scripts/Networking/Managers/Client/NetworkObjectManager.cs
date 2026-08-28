@@ -12,11 +12,15 @@ namespace BETest.Networking.Managers
     {
         private PlayerManager _playerManager;
         private ProjectileManager _projectileManager;
+        private EnemyManager _enemyManager;
+        private NetworkObjectStateManager _objectStateManager;
 
-        public void Initialize(PlayerManager playerManager, ProjectileManager projectileManager)
+        public void Initialize(PlayerManager playerManager, ProjectileManager projectileManager, EnemyManager enemyManager, NetworkObjectStateManager objectStateManager = null)
         {
             _playerManager = playerManager;
             _projectileManager = projectileManager;
+            _enemyManager = enemyManager;
+            _objectStateManager = objectStateManager;
         }
 
         public void SpawnEntity(NetworkEntitySpawnData data)
@@ -28,6 +32,7 @@ namespace BETest.Networking.Managers
                     break;
 
                 case EntityType.Mob:
+                    _enemyManager.SpawnEnemy(data);
                     break;
             }
         }
@@ -37,17 +42,26 @@ namespace BETest.Networking.Managers
             _projectileManager.SpawnProjectile(data);
         }
 
+        public void HandlePlayerHealth(PlayerHealthData data)
+        {
+            _playerManager.HandleHealth(data);
+        }
+
         public void HandleProjectileEnd(ProjectileEndData data)
         {
             _projectileManager.HandleProjectileEnd(data);
         }
 
-        public void DespawnEntity(uint objectID, EntityType entityType)
+        public void DespawnEntity(uint ObjectID, EntityType entityType)
         {
             switch (entityType)
             {
                 case EntityType.Player:
-                    _playerManager.DespawnPlayer(objectID);
+                    _playerManager.DespawnPlayer(ObjectID);
+                    break;
+
+                case EntityType.Mob:
+                    _enemyManager.DespawnEnemy(ObjectID);
                     break;
             }
         }
@@ -70,19 +84,31 @@ namespace BETest.Networking.Managers
                 case EntityType.Player:
                     SendPlayerMove((Player)entity);
                     break;
+
+                case EntityType.Mob:
+                    SendEnemyState(entity);
+                    break;
             }
         }
 
         private void SendPlayerMove(Player player)
         {
-            NetworkEntityStateData lastState = player.GetEntityStateForBroadcast();          
+            NetworkEntityStateData state = player.GetEntityStateForBroadcast();
 
             PlayerMoveMessage message = new()
             {
-                Data = new PlayerMoveData(lastState),
+                Data = new PlayerMoveData(state),
             };
 
             NetworkClient.SendMessage(message, TransmissionChannel.StateUpdate, DeliveryMethod.Unreliable);
+        }
+
+        private void SendEnemyState(NetworkEntity enemy)
+        {
+            if (_objectStateManager == null) return;
+
+            NetworkEntityStateData state = enemy.GetEntityStateForBroadcast();
+            _objectStateManager.UpdateEnemyState(state);
         }
 
         public void HandleEntityState(NetworkEntityStateData state)
@@ -92,12 +118,31 @@ namespace BETest.Networking.Managers
                 case EntityType.Player:
                     _playerManager.HandleState(state);
                     break;
+
+                case EntityType.Mob:
+                    _enemyManager.HandleState(state);
+                    break;
             }
+        }
+
+        public void HandlePlayerScore(PlayerScoreData data)
+        {
+            _playerManager.HandleScore(data);
+        }
+
+        public void HandlePlayerScoreRemoved(uint PID)
+        {
+            _playerManager.HandleScoreRemoved(PID);
         }
 
         public IEnumerable<NetworkEntity> GetStateAuthorityEntities()
         {
             if (_playerManager.LocalPlayer != null) yield return _playerManager.LocalPlayer;
+
+            foreach (Enemy enemy in _enemyManager.GetStateAuthorityEnemies())
+            {
+                yield return enemy;
+            }
         }
     }
 }

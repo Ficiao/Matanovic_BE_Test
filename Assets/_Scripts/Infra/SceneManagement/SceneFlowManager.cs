@@ -1,9 +1,5 @@
-using BETest.Misc;
 using BETest.Networking.Messages;
-using BETest.Networking.RoomManagement;
-using System;
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
 namespace BETest.Infra.SceneManagement
@@ -12,13 +8,23 @@ namespace BETest.Infra.SceneManagement
     {
         private bool _loading;
 
+        public void EnterLogin()
+        {
+            LoadScene(SceneType.LoginScreen);
+        }
+
         public void EnterGame()
+        {
+            LoadScene(SceneType.GameScene);
+        }
+
+        private void LoadScene(SceneType sceneType)
         {
             if (_loading) return;
 
             _loading = true;
 
-            AsyncOperation operation = SceneManager.LoadSceneAsync((int)SceneType.GameScene);
+            AsyncOperation operation = SceneManager.LoadSceneAsync((int)sceneType);
             operation.completed += _ => _loading = false;
         }
     }

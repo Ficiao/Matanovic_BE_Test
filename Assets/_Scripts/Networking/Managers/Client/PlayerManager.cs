@@ -22,7 +22,16 @@ namespace BETest.Networking.Managers
         private bool _hasLocalPID;
         private Player _localPlayer;
         private WeaponDataScriptable _weaponData;
+        private readonly Dictionary<uint, PlayerScoreData> _scores = new();
 
+        public IReadOnlyDictionary<uint, PlayerScoreData> Scores => _scores;
+
+        public event Action<PlayerScoreData> OnPlayerScoreChanged;
+        public event Action<uint> OnPlayerScoreRemoved;
+
+        public event Action<int, int> OnLocalPlayerHealthChanged;
+        public event Action OnLocalPlayerDied;
+        public event Action<Player> OnLocalPlayerSpawned;
         public IReadOnlyDictionary<uint, Player> Players => _players;
         public Player LocalPlayer => _localPlayer;
 
@@ -58,6 +67,9 @@ namespace BETest.Networking.Managers
             {
                 _localPlayer = player;
                 _roomManager.LocalPlayerReady();
+
+                OnLocalPlayerHealthChanged?.Invoke(player.Health, player.MaxHealth);
+                OnLocalPlayerSpawned?.Invoke(player);
             }
 
             return player;
@@ -77,6 +89,31 @@ namespace BETest.Networking.Managers
             if (!_players.TryGetValue(state.ObjectID, out Player player)) return;
 
             player.HandleServerStateUpdate(state);
+        }
+
+        public void HandleHealth(PlayerHealthData data)
+        {
+            if (_players.TryGetValue(data.PID, out Player player))
+                player.SetHealth(data.Health);
+
+            if (!_hasLocalPID || data.PID != _localPID) return;
+
+            OnLocalPlayerHealthChanged?.Invoke(data.Health, GameConfig.PLAYER_MAX_HEALTH);
+
+            if (data.Health <= 0)
+                OnLocalPlayerDied?.Invoke();
+        }
+
+        public void HandleScore(PlayerScoreData data)
+        {
+            _scores[data.PID] = data;
+            OnPlayerScoreChanged?.Invoke(data);
+        }
+
+        public void HandleScoreRemoved(uint PID)
+        {
+            _scores.Remove(PID);
+            OnPlayerScoreRemoved?.Invoke(PID);
         }
     }
 }

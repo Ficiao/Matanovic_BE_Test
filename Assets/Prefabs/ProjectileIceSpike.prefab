@@ -45,8 +45,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efc4f670d079d874b9b4a54de23d2fdd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BETest.Entities.IceProjectile
-  _movementSpeed: 15
+  _movementSpeed: 20
   _maxDistance: 40
+  _hitRadius: 0.25
+  _enemyMask:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!1001 &3673761166224724898
 PrefabInstance:
   m_ObjectHideFlags: 0

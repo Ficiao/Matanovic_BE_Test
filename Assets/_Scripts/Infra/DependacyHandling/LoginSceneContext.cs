@@ -1,4 +1,3 @@
-using BETest.Entities;
 using BETest.Misc;
 using BETest.UI.Controllers;
 using UnityEngine;
@@ -14,8 +13,11 @@ namespace BETest.Infra.DependacyHandling
         {
             DependencyContainer container = DependencyContainer.Instance;
 
+            container.LocalPlayerSession.ClearRoomData();
+
             SessionBrowserController.Initialize(container.RoomManager, container.LanDiscovery, container.WeaponData, container.LocalPlayerSession, LoginController);
-            LoginController.Initialize(container.LocalPlayerSession);
+            LoginController.Initialize(container.LocalPlayerSession, container.VolumeSettings);
+            LoginController.TryAutoLogin();
         }
     }
 }

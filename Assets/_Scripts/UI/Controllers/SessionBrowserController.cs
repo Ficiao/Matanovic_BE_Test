@@ -1,6 +1,5 @@
 ﻿using BETest.Config;
 using BETest.Entities;
-using BETest.Enum;
 using BETest.Networking.Messages;
 using BETest.Networking.RoomManagement;
 using BETest.Scriptables;
@@ -8,7 +7,6 @@ using BETest.UI.Views;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace BETest.UI.Controllers
 {
@@ -17,7 +15,7 @@ namespace BETest.UI.Controllers
         [SerializeField] private SessionBrowserView _view;
         private LoginController _loginController;
         private RoomManager _roomManager;
-        private LanDiscovery _lanDiscovery;
+        private LanRoomDiscovery _lanDiscovery;
         private readonly List<RoomInfo> _rooms = new();
         private SessionEntryView _selectedEntry;
         private RoomInfo _selectedRoom;
@@ -25,18 +23,18 @@ namespace BETest.UI.Controllers
         private string _roomIDToReselect;
         private Coroutine _autoRefreshCoroutine;
 
-        public void Initialize(RoomManager roomManager, LanDiscovery lanDiscovery, WeaponDataScriptable weaponData, LocalPlayerSession localPlayerSession, LoginController loginController)
+        public void Initialize(RoomManager roomManager, LanRoomDiscovery lanDiscovery, WeaponDataScriptable weaponData, LocalPlayerSession localPlayerSession, LoginController loginController)
         {
             _roomManager = roomManager;
             _lanDiscovery = lanDiscovery;
             _localPlayerSession = localPlayerSession;
             _loginController = loginController;
 
-            _view.WeaponSelected += _localPlayerSession.SetWeapon;
-            _view.CharacterSelected += _localPlayerSession.SetCharacter;
-            _lanDiscovery.RoomDiscovered += OnRoomDiscovered;
-            _roomManager.StateChanged += OnRoomStateChanged;
-            _loginController.LoginSucceeded += OnLoginSucceeded;
+            _view.OnWeaponSelected += _localPlayerSession.SetWeapon;
+            _view.OnCharacterSelected += _localPlayerSession.SetCharacter;
+            _lanDiscovery.OnRoomDiscovered += OnRoomDiscovered;
+            _roomManager.OnStateChanged += OnRoomStateChanged;
+            _loginController.OnLoginSucceeded += OnLoginSucceeded;
 
 
             _view.InitializeCharacterSelection(weaponData);
@@ -44,21 +42,28 @@ namespace BETest.UI.Controllers
 
         private void OnEnable()
         {
-            _view.RefreshRequested += Refresh;
-            _view.JoinRequested += JoinRoom;
-            _view.CreateRoomRequested += CreateRoom;
+            _view.OnRefreshRequested += Refresh;
+            _view.OnJoinRequested += JoinRoom;
+            _view.OnCreateRoomRequested += CreateRoom;
         }
 
         private void OnDisable()
         {
-            _view.RefreshRequested -= Refresh;
-            _view.JoinRequested -= JoinRoom;
-            _view.CreateRoomRequested -= CreateRoom;
+            _view.OnRefreshRequested -= Refresh;
+            _view.OnJoinRequested -= JoinRoom;
+            _view.OnCreateRoomRequested -= CreateRoom;
             if (_autoRefreshCoroutine != null)
             {
                 StopCoroutine(_autoRefreshCoroutine);
                 _autoRefreshCoroutine = null;
             }
+        }
+
+        private void OnDestroy()
+        {
+            if (_lanDiscovery != null) _lanDiscovery.OnRoomDiscovered -= OnRoomDiscovered;
+            if (_roomManager != null) _roomManager.OnStateChanged -= OnRoomStateChanged;
+            if (_loginController != null) _loginController.OnLoginSucceeded -= OnLoginSucceeded;
         }
 
         private void Refresh()
@@ -82,7 +87,7 @@ namespace BETest.UI.Controllers
             _rooms.Add(room);
 
             SessionEntryView entry = _view.AddSession(room);
-            entry.SelectionChanged += OnEntrySelectionChanged;
+            entry.OnSelectionChanged += OnEntrySelectionChanged;
 
             if (room.Id == _roomIDToReselect)
             {

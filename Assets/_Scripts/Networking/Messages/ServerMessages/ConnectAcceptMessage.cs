@@ -3,7 +3,7 @@ namespace BETest.Networking.Messages
     public class ConnectAcceptMessage
     {
         public ClientPlayerData PlayerData { get; set; }
-        public short TickIndex;
+        public int WorldSeed { get; set; }
 
         public override string ToString()
         {

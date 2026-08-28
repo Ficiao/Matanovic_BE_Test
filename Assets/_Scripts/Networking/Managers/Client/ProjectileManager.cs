@@ -1,11 +1,9 @@
+using BETest.Audio;
 using BETest.Entities;
 using BETest.Enum;
 using BETest.Misc;
-using BETest.Networking.ConnectionHandling;
 using BETest.Networking.Messages;
-using BETest.Networking.Services;
 using BETest.Scriptables;
-using LiteNetLib;
 using System.Collections.Generic;
 using UnityEngine;
 using static BETest.Scriptables.WeaponDataScriptable;
@@ -19,14 +17,16 @@ namespace BETest.Networking.Managers
         private readonly Dictionary<WeaponType, ObjectPool<Projectile>> _pools = new();
         private readonly Dictionary<uint, Projectile> _projectiles = new();
         private readonly List<Projectile> _activeProjectiles = new();
+        private GameAudioManager _audioManager;
 
         private WeaponDataScriptable _weaponData;
         private bool _hasProjectileStateAuthority;
 
-        public void Initialize(WeaponDataScriptable weaponData, bool hasProjectileStateAuthority)
+        public void Initialize(WeaponDataScriptable weaponData, bool hasProjectileStateAuthority, GameAudioManager audioManager)
         {
             _weaponData = weaponData;
             _hasProjectileStateAuthority = hasProjectileStateAuthority;
+            _audioManager = audioManager;
 
             foreach (WeaponData weapon in weaponData.Weapons)
             {
@@ -46,6 +46,7 @@ namespace BETest.Networking.Managers
 
             _projectiles.Add(data.ObjectID, projectile);
             _activeProjectiles.Add(projectile);
+            _audioManager.PlayShoot();
         }
 
         public void HandleTick()
@@ -58,9 +59,7 @@ namespace BETest.Networking.Managers
 
         public void HandleProjectileEnd(ProjectileEndData data)
         {
-            if (!_projectiles.TryGetValue(data.ObjectID, out Projectile projectile)) return;
-
-            projectile.HandleProjectileEnd(data);
+            _projectiles[data.ObjectID].HandleProjectileEnd(data);
         }
 
         public void ReleaseProjectile(Projectile projectile)
@@ -72,9 +71,7 @@ namespace BETest.Networking.Managers
             _activeProjectiles.Remove(projectile);
 
             projectile.ResetForPool();
-
-            if (_pools.TryGetValue(weaponType, out ObjectPool<Projectile> pool))
-                pool.Release(projectile);
+            _pools[weaponType].Release(projectile);
         }
     }
 }

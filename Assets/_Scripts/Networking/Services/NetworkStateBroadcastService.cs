@@ -1,17 +1,19 @@
-using BETest.Entities;
+using BETest.Config;
 using BETest.Enum;
 using BETest.Networking.ConnectionHandling;
 using BETest.Networking.Managers;
 using BETest.Networking.Messages;
 using LiteNetLib;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace BETest.Networking.Services
-{ 
+{
     public class NetworkStateBroadcastService
     {
-        private readonly List<NetworkEntityStateData> _dirtyStates = new(128);
+        private const int PACKET_RESERVE_BYTES = 64;
+
+        private readonly List<NetworkEntityStateData> _states = new(256);
+        private readonly List<NetworkEntityStateData> _batch = new(64);
         private readonly NetworkEntityStatesMessage _reusableStatesMessage = new();
 
         private NetworkObjectStateManager _objectStateManager;
@@ -23,17 +25,52 @@ namespace BETest.Networking.Services
 
         public void HandleTick()
         {
-            _dirtyStates.Clear();
-            _objectStateManager.GetDirtyStates(_dirtyStates);
+            _states.Clear();
+            _objectStateManager.GetDirtyStates(_states);
 
-            if (_dirtyStates.Count == 0) return;
+            if (_states.Count == 0) return;
 
+            _batch.Clear();
+
+            int maxBatchSize = ConnectionConfig.MAX_PACKET_BYTES - PACKET_RESERVE_BYTES;
+            int batchSize = sizeof(ushort);
+
+            foreach (NetworkEntityStateData state in _states)
+            {
+                int stateSize = NetworkEntityStateData.Size(state.UpdateFlags);
+
+                if (_batch.Count > 0 && batchSize + stateSize > maxBatchSize)
+                {
+                    SendBatch();
+                    batchSize = sizeof(ushort);
+                }
+
+                _batch.Add(state);
+                batchSize += stateSize;
+            }
+
+            if (_batch.Count > 0) SendBatch();
+        }
+
+        private void SendBatch()
+        {
             _reusableStatesMessage.Data = new NetworkEntityStateDatas
             {
-                NetworkEntityStates = _dirtyStates,
+                NetworkEntityStates = _batch,
             };
 
             NetworkServer.SendMessageToAll(_reusableStatesMessage, TransmissionChannel.StateUpdate, DeliveryMethod.Unreliable);
+            _batch.Clear();
+        }
+
+        public static void BroadcastPlayerHealth(PlayerHealthData data)
+        {
+            PlayerHealthMessage message = new()
+            {
+                Data = data,
+            };
+
+            NetworkServer.SendMessageToAll(message, TransmissionChannel.GenericRO, DeliveryMethod.ReliableOrdered);
         }
     }
 }

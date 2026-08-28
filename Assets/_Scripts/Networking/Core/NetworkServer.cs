@@ -1,6 +1,5 @@
 using BETest.Config;
 using BETest.Enum;
-using BETest.Networking.Managers;
 using BETest.Networking.Transport;
 using LiteNetLib;
 using System;
@@ -20,10 +19,10 @@ namespace BETest.Networking.ConnectionHandling
 
         public short CurrentTick => _currentTick;
 
-        public bool IsRunning => _server?.IsRunning ?? false;
+        public static bool IsRunning => _server?.IsRunning ?? false;
 
-        public event Action<NetPeer> ClientConnected;
-        public event Action<NetPeer> ClientDisconnected;
+        public event Action<NetPeer> OnClientConnected;
+        public event Action<NetPeer> OnClientDisconnected;
 
         public bool StartServer()
         {
@@ -58,8 +57,13 @@ namespace BETest.Networking.ConnectionHandling
 
         public void StopServer()
         {
-            _server?.Stop();
+            if (_server == null) return;
+
+            _server.Stop();
             _server = null;
+            _messageProcessor = null;
+
+            CustomLogger.Info("server_stopped");
         }
 
         private void Update()
@@ -80,7 +84,7 @@ namespace BETest.Networking.ConnectionHandling
                 ["pid"] = (uint)peer.Id,
                 ["remote"] = peer.Address?.ToString()
             });
-            ClientConnected?.Invoke(peer);
+            OnClientConnected?.Invoke(peer);
         }
 
         public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
@@ -90,7 +94,7 @@ namespace BETest.Networking.ConnectionHandling
                 ["pid"] = (uint)peer.Id,
                 ["reason"] = disconnectInfo.Reason.ToString()
             });
-            ClientDisconnected?.Invoke(peer);
+            OnClientDisconnected?.Invoke(peer);
         }
 
         public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, byte channelNumber, DeliveryMethod deliveryMethod)
@@ -100,16 +104,22 @@ namespace BETest.Networking.ConnectionHandling
 
         public static void SendMessage<T>(T packet, NetPeer peer, TransmissionChannel channel, DeliveryMethod deliveryMethod) where T : class, new()
         {
+            if (!IsRunning) return;
+
             _messageProcessor.SendPacket(packet, peer, channel, deliveryMethod);
         }
 
         public static void SendMessageToAll<T>(T packet, TransmissionChannel channel, DeliveryMethod deliveryMethod) where T : class, new()
         {
+            if (!IsRunning) return;
+
             _messageProcessor.SendPacketToAll(packet, _server, channel, deliveryMethod);
         }
 
         public static void SendMessageToAllExcept<T>(T packet, NetPeer excludedPeer, TransmissionChannel channel, DeliveryMethod deliveryMethod) where T : class, new()
         {
+            if (!IsRunning) return;
+
             _messageProcessor.SendPacketToAllExcept(packet, _server, excludedPeer, channel, deliveryMethod);
         }
 

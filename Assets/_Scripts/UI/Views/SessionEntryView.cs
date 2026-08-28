@@ -15,11 +15,11 @@ namespace BETest.UI.Views
 
         private RoomInfo _room;
         public RoomInfo Room => _room;
-        public event Action<SessionEntryView, bool> SelectionChanged;
+        public event Action<SessionEntryView, bool> OnSelectionChanged;
 
         private void Awake()
         {
-            _toggle.onValueChanged.AddListener((value) => SelectionChanged?.Invoke(this, value));
+            _toggle.onValueChanged.AddListener((value) => OnSelectionChanged?.Invoke(this, value));
         }
 
         public void SetRoom(RoomInfo room)

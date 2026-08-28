@@ -11,6 +11,10 @@ namespace BETest.Entities
     {
         [SerializeField] protected float _movementSpeed = 10f;
         [SerializeField] protected float _maxDistance = 20f;
+        [SerializeField] protected float _hitRadius = 0.25f;
+        [SerializeField] protected LayerMask _enemyMask;
+
+        protected readonly Collider[] _enemyHitBuffer = new Collider[32];
         protected ProjectileManager _projectileManager;
         protected Vector3 _direction;
         protected int _damage;
@@ -39,6 +43,8 @@ namespace BETest.Entities
             OnInitialized();
         }
 
+        protected virtual void OnInitialized() { }
+
         public override void HandleTick()
         {
             if (_ended) return;
@@ -50,26 +56,45 @@ namespace BETest.Entities
 
             if (!HasStateAuthority) return;
 
-            HandleAuthorityCollision();
+            HandleCollisions();
 
-            if (!_ended && _travelledDistance >= _maxDistance) Resolve();
+            if (!_ended && _travelledDistance >= _maxDistance) EndProjectile();
         }
 
-        protected abstract void HandleAuthorityCollision();
+        protected int GetEnemyHits(float radius)
+        {
+            return Physics.OverlapSphereNonAlloc(transform.position, radius, _enemyHitBuffer, _enemyMask, QueryTriggerInteraction.Collide);
+        }
 
-        protected virtual void OnInitialized(){}
+        protected bool TryGetEnemy(Collider collider, out Enemy enemy)
+        {
+            enemy = collider.GetComponentInParent<Enemy>();
+            return enemy != null && !enemy.IsDead;
+        }
 
-        protected void Resolve()
+        protected abstract void HandleCollisions();
+
+        protected void EndProjectile()
         {
             if (!HasStateAuthority || _ended) return;
 
             _ended = true;
-
+            OnResolve();
             ProjectileEndData data = new(ObjectID, transform.position);
             NetworkSpawnService.BroadcastProjectileEnd(data);
         }
 
-        public abstract void HandleProjectileEnd(ProjectileEndData data);
+        protected virtual void OnResolve() { }
+
+        public void HandleProjectileEnd(ProjectileEndData data)
+        {
+            _ended = true;
+            transform.position = data.Position;
+
+            OnProjectileEnd(data);
+        }
+
+        protected abstract void OnProjectileEnd(ProjectileEndData data);
 
         public virtual void ResetForPool()
         {

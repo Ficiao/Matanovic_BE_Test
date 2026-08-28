@@ -1,10 +1,7 @@
-using BETest.Enum;
-using BETest.Networking.Managers;
 using BETest.Networking.Messages;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace BETest.Entities
 {
@@ -24,15 +21,28 @@ namespace BETest.Entities
             _explosionEffect.SetActive(false);
         }
 
-        protected override void HandleAuthorityCollision()
+        protected override void HandleCollisions()
         {
-            // TODO
+            if (GetEnemyHits(_hitRadius) > 0) EndProjectile();
         }
 
-        public override void HandleProjectileEnd(ProjectileEndData data)
+        protected override void OnResolve()
         {
-            transform.position = data.Position;
+            _damagedEnemyIDs.Clear();
 
+            int hitCount = GetEnemyHits(_explosionRadius);
+
+            for (int i = 0; i < hitCount; i++)
+            {
+                if (!TryGetEnemy(_enemyHitBuffer[i], out Enemy enemy)) continue;
+                if (!_damagedEnemyIDs.Add(enemy.ObjectID)) continue;
+
+                enemy.TakeDamage(_damage, OwnerPID);
+            }
+        }
+
+        protected override void OnProjectileEnd(ProjectileEndData data)
+        {
             _projectileEffect.SetActive(false);
             _explosionEffect.SetActive(true);
 
@@ -47,10 +57,8 @@ namespace BETest.Entities
 
         public override void ResetForPool()
         {
-            StopAllCoroutines();
-
             _damagedEnemyIDs.Clear();
-            _projectileEffect.SetActive(true);
+            _projectileEffect.SetActive(false);
             _explosionEffect.SetActive(false);
 
             base.ResetForPool();

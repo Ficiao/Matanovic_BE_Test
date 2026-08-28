@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace BETest.Scriptables
 {
-    [CreateAssetMenu(fileName = "Weapon Data Scriptable", menuName = "Scriptables/Weapon Data Scriptable")]
+    [CreateAssetMenu(fileName = "WeaponDataScriptable", menuName = "Scriptables/Weapon Data Scriptable")]
     public class WeaponDataScriptable : ScriptableObject
     {
         [Serializable]

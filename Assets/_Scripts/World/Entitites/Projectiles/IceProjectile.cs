@@ -1,4 +1,3 @@
-using BETest.Enum;
 using BETest.Networking.Messages;
 using System.Collections.Generic;
 
@@ -13,14 +12,21 @@ namespace BETest.Entities
             _hitEnemyIDs.Clear();
         }
 
-        protected override void HandleAuthorityCollision()
+        protected override void HandleCollisions()
         {
-            // TODO
+            int hitCount = GetEnemyHits(_hitRadius);
+
+            for (int i = 0; i < hitCount; i++)
+            {
+                if (!TryGetEnemy(_enemyHitBuffer[i], out Enemy enemy)) continue;
+                if (!_hitEnemyIDs.Add(enemy.ObjectID)) continue;
+
+                enemy.TakeDamage(_damage, OwnerPID);
+            }
         }
 
-        public override void HandleProjectileEnd(ProjectileEndData data)
+        protected override void OnProjectileEnd(ProjectileEndData data)
         {
-            transform.position = data.Position;
             _projectileManager.ReleaseProjectile(this);
         }
 

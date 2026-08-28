@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System;
 using BETest.Enum;
 using Newtonsoft.Json;
-using System.Linq;
 
 namespace BETest.Networking
 {

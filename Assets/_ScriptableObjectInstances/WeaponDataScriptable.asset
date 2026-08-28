@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9502f39bf4e329840ba45f8f4e348e7c, type: 3}
+  m_Name: WeaponDataScriptable
+  m_EditorClassIdentifier: Assembly-CSharp::BETest.Scriptables.WeaponDataScriptable
+  _weapons:
+  - WeaponType: 1
+    WeaponImage: {fileID: 21300000, guid: 053452691be40684992e80d075b061c5, type: 3}
+    WeaponPrefab: {fileID: 7332904974175218641, guid: f9f521a2a25881640b4bca945d1a6960, type: 3}
+    FireRate: 0.15
+    Damage: 4
+  - WeaponType: 2
+    WeaponImage: {fileID: 21300000, guid: b9f913d2e7ac22945a6666275325920b, type: 3}
+    WeaponPrefab: {fileID: 2575770298971786947, guid: 66bf0e62e6fa1074e805d308a44ecbaa, type: 3}
+    FireRate: 0.15
+    Damage: 2
+  - WeaponType: 3
+    WeaponImage: {fileID: 21300000, guid: 47abad564dac8db4486ded75b70f99e0, type: 3}
+    WeaponPrefab: {fileID: 7295014645456375934, guid: 63ba9c5fc17e7b643a15f7144fff7cce, type: 3}
+    FireRate: 0.075
+    Damage: 1

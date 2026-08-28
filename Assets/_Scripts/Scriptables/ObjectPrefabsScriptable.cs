@@ -23,5 +23,10 @@ namespace BETest.Scriptables
         {
             return _prefabs.First(prefab => prefab.PrefabType == prefabType).Prefab;
         }
+
+        public IEnumerable<PrefabData> GetPrefabs<T>() where T : Component
+        {
+            return _prefabs.Where(prefab => prefab.Prefab.GetComponent<T>() != null);
+        }
     }
 }

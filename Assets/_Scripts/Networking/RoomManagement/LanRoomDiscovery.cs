@@ -1,5 +1,4 @@
 using BETest.Config;
-using BETest.Misc;
 using BETest.Networking.Messages;
 using LiteNetLib;
 using LiteNetLib.Utils;
@@ -10,14 +9,14 @@ using UnityEngine;
 
 namespace BETest.Networking.RoomManagement
 {
-    public class LanDiscovery : MonoBehaviour, INetEventListener
+    public class LanRoomDiscovery : MonoBehaviour, INetEventListener
     {
         private RoomManager _roomManager;
         private int _discoveryPort = ConnectionConfig.DISCOVERY_PORT;
         private string _protocol = ConnectionConfig.PROTOCOL;
         private NetManager _netManager;
 
-        public event Action<RoomInfo> RoomDiscovered;
+        public event Action<RoomInfo> OnRoomDiscovered;
 
         public void Initialize(RoomManager roomManager)
         {
@@ -35,16 +34,30 @@ namespace BETest.Networking.RoomManagement
 
         public void StartAdvertising()
         {
-            if (_netManager.IsRunning) _netManager.Stop();
-            _netManager.Start(_discoveryPort);
+            Stop();
+
             _netManager.BroadcastReceiveEnabled = true;
+            _netManager.Start(_discoveryPort);
         }
 
-        public void StopAdvertising() => _netManager.BroadcastReceiveEnabled = false;
+        public void StopAdvertising()
+        {
+            Stop();
+        }
+
+        public void Stop()
+        {
+            if (!_netManager.IsRunning) return;
+
+            _netManager.Stop(false);
+        }
 
         public void StartBrowsing()
         {
-            if (!_netManager.IsRunning) _netManager.Start();
+            if (_netManager.IsRunning) return;
+
+            _netManager.BroadcastReceiveEnabled = true;
+            _netManager.Start();
         }
 
         public void Search()
@@ -108,7 +121,7 @@ namespace BETest.Networking.RoomManagement
                 HostAddress = remote.Address.ToString()
             };
 
-            RoomDiscovered?.Invoke(room);
+            OnRoomDiscovered?.Invoke(room);
         }
 
         public void OnPeerConnected(NetPeer peer) { }

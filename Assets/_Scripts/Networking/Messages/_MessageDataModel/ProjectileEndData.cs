@@ -1,5 +1,4 @@
 using BETest.Config;
-using BETest.Enum;
 using LiteNetLib.Utils;
 using UnityEngine;
 
