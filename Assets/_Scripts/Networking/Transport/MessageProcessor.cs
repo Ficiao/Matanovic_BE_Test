@@ -1,6 +1,7 @@
 using BETest.Config;
 using BETest.Enum;
 using BETest.Extensions;
+using BETest.Infra.DependacyHandling;
 using BETest.Networking.Messages;
 using LiteNetLib;
 using LiteNetLib.Utils;
@@ -10,11 +11,14 @@ namespace BETest.Networking.Transport
 {
     public class MessageProcessor
     {
+        protected readonly DependencyContainer _container;
+        protected GameSceneContext _context;
         private readonly NetPacketProcessor _packetProcessor;
         private readonly NetDataWriter _writer;
 
-        public MessageProcessor()
+        public MessageProcessor(DependencyContainer container)
         {
+            _container = container;
             _packetProcessor = new NetPacketProcessor();
             _writer = new NetDataWriter();
 
@@ -39,6 +43,10 @@ namespace BETest.Networking.Transport
             RegisterNestedType<PlayerHealthData>();
             RegisterNestedType<PlayerScoreData>();
         }
+
+        public void BindContext(GameSceneContext context) => _context = context;
+
+        public void UnbindContext(GameSceneContext context) => _context = ReferenceEquals(_context, context) ? null : _context;
 
         public void RegisterNestedType<T>() where T : struct, INetSerializable
         {

@@ -6,9 +6,11 @@ namespace BETest.Networking.Messages
 {
     public static class NetworkEntitiesDespawnMessageHandler
     {
-        public static void ProcessMessage(NetworkEntitiesDespawnMessage message, NetPeer peer)
+        public static void ProcessMessage(NetworkEntitiesDespawnMessage message, NetPeer peer, GameSceneContext context)
         {
-            NetworkObjectManager objectManager = GameSceneContext.Instance.NetworkObjectManager;
+            if (context == null) return;
+
+            NetworkObjectManager objectManager = context.NetworkObjectManager;
 
             foreach (NetworkEntityDespawnData data in message.DespawnDatas.NetworkEntityDespawns)
             {

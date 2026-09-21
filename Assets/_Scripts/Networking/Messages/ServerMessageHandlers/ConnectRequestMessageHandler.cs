@@ -12,7 +12,7 @@ namespace BETest.Networking.Messages
         private const float WINDOW = 60f;
         private static Dictionary<string, (int count, float resetTime)> _ipAttempts = new();
 
-        public static void ProcessMessage(ConnectRequestMessage message, NetPeer peer)
+        public static void ProcessMessage(ConnectRequestMessage message, NetPeer peer, GameSceneContext context)
         {
             if (!AllowConnection(peer.Address.ToString(), Time.unscaledTime))
             {
@@ -21,7 +21,7 @@ namespace BETest.Networking.Messages
                 return;
             }
 
-            NetworkObjectStateManager objectManager = GameSceneContext.Instance?.ObjectStateManager;
+            NetworkObjectStateManager objectManager = context != null ? context.ObjectStateManager : null;
             if (objectManager == null)
             {
                 CustomLogger.Warning($"disconnecting_peer", new() { ["id"] = peer?.Id, ["reason"] = "game_scene_not_ready" });

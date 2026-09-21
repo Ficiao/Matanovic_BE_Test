@@ -6,9 +6,11 @@ namespace BETest.Networking.Messages
 {
     public static class ProjectileSpawnMessageHandler
     {
-        public static void ProcessMessage(ProjectileSpawnMessage message, NetPeer peer)
+        public static void ProcessMessage(ProjectileSpawnMessage message, NetPeer peer, GameSceneContext context)
         {
-            NetworkObjectManager objectManager = GameSceneContext.Instance.NetworkObjectManager;
+            if (context == null) return;
+
+            NetworkObjectManager objectManager = context.NetworkObjectManager;
             objectManager.SpawnEntity(message.Data);
         }
     }

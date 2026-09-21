@@ -5,9 +5,11 @@ namespace BETest.Networking.Messages
 {
     public static class PlayerHealthMessageHandler
     {
-        public static void ProcessMessage(PlayerHealthMessage message, NetPeer peer)
+        public static void ProcessMessage(PlayerHealthMessage message, NetPeer peer, GameSceneContext context)
         {
-            GameSceneContext.Instance.NetworkObjectManager.HandlePlayerHealth(message.Data);
+            if (context == null) return;
+
+            context.NetworkObjectManager.HandlePlayerHealth(message.Data);
         }
     }
 }

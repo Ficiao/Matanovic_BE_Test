@@ -20,6 +20,7 @@ namespace BETest.Networking.ConnectionHandling
         private static ClientMessageProcessor _messageProcessor;
         private LocalPlayerSession _localPlayerSession;
 
+        public ClientMessageProcessor MessageProcessor => _messageProcessor;
         public NetPeer ServerPeer => _server;
         public bool IsConnected => _server?.ConnectionState == ConnectionState.Connected;
         public long BytesReceived => _client?.Statistics.BytesReceived ?? 0;
@@ -29,16 +30,18 @@ namespace BETest.Networking.ConnectionHandling
         public event Action OnDisconnected;
         public event Action<NetPacketReader, byte, DeliveryMethod> OnPacketReceived;
 
-        private void Start()
+        public void Initialize(DependencyContainer container)
         {
-            _localPlayerSession = DependencyContainer.Instance.LocalPlayerSession;
+            _localPlayerSession = container.LocalPlayerSession;
+            _messageProcessor = new ClientMessageProcessor(container);
         }
 
         public void Connect(string address, int port)
         {
             Disconnect();
 
-            _messageProcessor = new();
+            if (_messageProcessor == null)
+                throw new InvalidOperationException("Initialize the network client before connecting.");
 
             _client = new NetManager(this)
             {

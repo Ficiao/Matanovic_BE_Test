@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace BETest.Infra.DependacyHandling
 {
-    public class GameSceneContext : Singleton<GameSceneContext>
+    public class GameSceneContext : SceneContext
     {
         [field: SerializeField] public SpawnManager SpawnManager { get; private set; }
         [field: SerializeField] public NetworkObjectManager NetworkObjectManager { get; private set; }
@@ -30,9 +30,10 @@ namespace BETest.Infra.DependacyHandling
         public NetworkObjectStateManager ObjectStateManager { get; private set; }
         public NetworkStateBroadcastService NetworkStateBroadcastService { get; private set; }
 
-        private void Start()
+        public override void Initialize(DependencyContainer container)
         {
-            DependencyContainer container = DependencyContainer.Instance;
+            base.Initialize(container);
+
             bool isServerRunning = NetworkServer.IsRunning;
 
             if (isServerRunning)

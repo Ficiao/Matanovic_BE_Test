@@ -41,7 +41,7 @@ namespace BETest.UI.Views
             _joinButton.interactable = false;
         }
 
-        public void InitializeCharacterSelection(WeaponDataScriptable weaponData)
+        public void InitializeCharacterAndWeaponSelectors(WeaponDataScriptable weaponData)
         {
             foreach (var data in weaponData.Weapons)
             {

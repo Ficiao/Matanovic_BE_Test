@@ -5,9 +5,11 @@ namespace BETest.Networking.Messages
 {
     public static class PlayerScoreMessageHandler
     {
-        public static void ProcessMessage(PlayerScoreMessage message, NetPeer peer)
+        public static void ProcessMessage(PlayerScoreMessage message, NetPeer peer, GameSceneContext context)
         {
-            GameSceneContext.Instance.NetworkObjectManager.HandlePlayerScore(message.Data);
+            if (context == null) return;
+
+            context.NetworkObjectManager.HandlePlayerScore(message.Data);
         }
     }
 }

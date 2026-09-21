@@ -6,16 +6,17 @@ namespace BETest.Networking.Messages
 {
     public static class NetworkEntitiesSpawnMessageHandler
     {
-        public static void ProcessMessage(NetworkEntitiesSpawnMessage message, NetPeer peer)
+        public static void ProcessMessage(NetworkEntitiesSpawnMessage message, NetPeer peer, GameSceneContext context)
         {
-            if(GameSceneContext.Instance == null)
+            if (context == null)
             {
-                CustomLogger.Warning($"disconnecting_peer", new() { ["id"] = peer?.Id, ["reason"] = "game_scene_not_ready, unprocessed_spawns" });
+                CustomLogger.Warning("disconnecting_peer", new() { ["id"] = peer?.Id, ["reason"] = "game_scene_not_ready, unprocessed_spawns" });
+
                 peer.Disconnect();
                 return;
             }
 
-            NetworkObjectManager objectManager = GameSceneContext.Instance.NetworkObjectManager;
+            NetworkObjectManager objectManager = context.NetworkObjectManager;
 
             foreach(NetworkEntitySpawnData spawnData in message.SpawnDatas.NetworkEntitySpawns)
             {

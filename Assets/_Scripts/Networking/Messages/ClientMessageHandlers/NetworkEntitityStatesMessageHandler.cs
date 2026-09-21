@@ -6,9 +6,11 @@ namespace BETest.Networking.Messages
 {
     public static class NetworkEntityStatesMessageHandler
     {
-        public static void ProcessMessage(NetworkEntityStatesMessage message, NetPeer peer)
+        public static void ProcessMessage(NetworkEntityStatesMessage message, NetPeer peer, GameSceneContext context)
         {
-            NetworkObjectManager objectManager = GameSceneContext.Instance.NetworkObjectManager;
+            if (context == null) return;
+
+            NetworkObjectManager objectManager = context.NetworkObjectManager;
 
             foreach (NetworkEntityStateData state in message.Data.NetworkEntityStates)
             {

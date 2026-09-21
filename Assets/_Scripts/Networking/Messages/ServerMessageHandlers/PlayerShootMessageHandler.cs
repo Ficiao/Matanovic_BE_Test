@@ -6,9 +6,9 @@ namespace BETest.Networking.Messages
 {
     public static class PlayerShootMessageHandler
     {
-        public static void ProcessMessage(PlayerShootMessage message, NetPeer peer)
+        public static void ProcessMessage(PlayerShootMessage message, NetPeer peer, GameSceneContext context)
         {
-            NetworkObjectStateManager objectStateManager = GameSceneContext.Instance?.ObjectStateManager;
+            NetworkObjectStateManager objectStateManager = context != null ? context.ObjectStateManager : null;
 
             if (objectStateManager == null)
             {

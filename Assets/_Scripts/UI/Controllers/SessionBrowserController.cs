@@ -36,8 +36,7 @@ namespace BETest.UI.Controllers
             _roomManager.OnStateChanged += OnRoomStateChanged;
             _loginController.OnLoginSucceeded += OnLoginSucceeded;
 
-
-            _view.InitializeCharacterSelection(weaponData);
+            _view.InitializeCharacterAndWeaponSelectors(weaponData);
         }
 
         private void OnEnable()

@@ -6,9 +6,9 @@ namespace BETest.Networking.Messages
 {
     public static class PlayerMoveMessageHandler
     {
-        public static void ProcessMessage(PlayerMoveMessage message, NetPeer peer)
+        public static void ProcessMessage(PlayerMoveMessage message, NetPeer peer, GameSceneContext context)
         {
-            NetworkObjectStateManager objectStateManager = GameSceneContext.Instance?.ObjectStateManager;
+            NetworkObjectStateManager objectStateManager = context != null ? context.ObjectStateManager : null;
             if (objectStateManager == null)
             {
                 CustomLogger.Warning("disconnecting_peer", new() { ["ID"] = peer?.Id, ["reason"] = "game_scene_not_ready, unprocessed_player_move" });

@@ -8,7 +8,8 @@ using UnityEngine;
 
 namespace BETest.Infra.DependacyHandling
 {
-    public class DependencyContainer : SingletonPersistent<DependencyContainer>
+    [DefaultExecutionOrder(-1000)]
+    public class DependencyContainer : MonoBehaviour
     {
         [field: SerializeField] public RoomManager RoomManager { get; private set; }
         [field: SerializeField] public LanRoomDiscovery LanDiscovery { get; private set; }
@@ -22,9 +23,14 @@ namespace BETest.Infra.DependacyHandling
 
         private void Start()
         {
+            DontDestroyOnLoad(this);
+
             VolumeSettings.Initialize();
+            Client.Initialize(this);
+            Server.Initialize(this);
             RoomManager.Initialize(Server, Client, LanDiscovery, SceneFlowManager);
             LanDiscovery.Initialize(RoomManager);
+            SceneFlowManager.Initialize(this);
         }
     }
 }

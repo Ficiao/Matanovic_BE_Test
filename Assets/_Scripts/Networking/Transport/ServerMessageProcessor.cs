@@ -1,15 +1,15 @@
+using BETest.Infra.DependacyHandling;
 using BETest.Networking.Messages;
 
 namespace BETest.Networking.Transport
 {
     public class ServerMessageProcessor : MessageProcessor
     {
-        public ServerMessageProcessor()
+        public ServerMessageProcessor(DependencyContainer container) : base(container)
         {
-            Subscribe<ConnectRequestMessage>(ConnectRequestMessageHandler.ProcessMessage);
-            Subscribe<ConnectRequestMessage>(ConnectRequestMessageHandler.ProcessMessage);
-            Subscribe<PlayerMoveMessage>(PlayerMoveMessageHandler.ProcessMessage);
-            Subscribe<PlayerShootMessage>(PlayerShootMessageHandler.ProcessMessage);
+            Subscribe<ConnectRequestMessage>((message, peer) => ConnectRequestMessageHandler.ProcessMessage(message, peer, _context));
+            Subscribe<PlayerMoveMessage>((message, peer) => PlayerMoveMessageHandler.ProcessMessage(message, peer, _context));
+            Subscribe<PlayerShootMessage>((message, peer) => PlayerShootMessageHandler.ProcessMessage(message, peer, _context));
         }
     }
 }

@@ -4,14 +4,14 @@ using UnityEngine;
 
 namespace BETest.Infra.DependacyHandling
 {
-    public class LoginSceneContext : Singleton<LoginSceneContext>
+    public class LoginSceneContext : SceneContext
     {
         [field: SerializeField] public SessionBrowserController SessionBrowserController { get; private set; }
         [field: SerializeField] public LoginController LoginController { get; private set; }
 
-        private void Start()
+        public override void Initialize(DependencyContainer container)
         {
-            DependencyContainer container = DependencyContainer.Instance;
+            base.Initialize(container);
 
             container.LocalPlayerSession.ClearRoomData();
 

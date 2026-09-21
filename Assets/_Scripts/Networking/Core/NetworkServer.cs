@@ -1,5 +1,6 @@
 using BETest.Config;
 using BETest.Enum;
+using BETest.Infra.DependacyHandling;
 using BETest.Networking.Transport;
 using LiteNetLib;
 using System;
@@ -16,6 +17,7 @@ namespace BETest.Networking.ConnectionHandling
         private static ServerMessageProcessor _messageProcessor;
         private short _currentTick;
 
+        public ServerMessageProcessor MessageProcessor => _messageProcessor;
         public short CurrentTick => _currentTick;
         public static bool IsRunning => _server?.IsRunning ?? false;
         public long BytesReceived => _server?.Statistics.BytesReceived ?? 0;
@@ -24,11 +26,17 @@ namespace BETest.Networking.ConnectionHandling
         public event Action<NetPeer> OnClientConnected;
         public event Action<NetPeer> OnClientDisconnected;
 
+        public void Initialize(DependencyContainer container)
+        {
+            _messageProcessor = new ServerMessageProcessor(container);
+        }
+
         public bool StartServer(int port)
         {
             if (IsRunning) return true;
 
-            _messageProcessor = new();
+            if (_messageProcessor == null)
+                throw new InvalidOperationException("Initialize the network server before starting.");
 
             _server = new NetManager(this)
             {
