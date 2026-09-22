@@ -26,7 +26,7 @@ namespace BETest.Networking.RoomManagement
             _gameTickRunner = gameTickRunner;
 
             _gameUIController.OnLeaveRequested += OnLeaveRequested;
-            _networkServer.OnClientDisconnected += OnClientDisconnected;
+            if (_objectStateManager != null) _networkServer.OnClientDisconnected += OnClientDisconnected;
         }
 
         private void OnLeaveRequested()

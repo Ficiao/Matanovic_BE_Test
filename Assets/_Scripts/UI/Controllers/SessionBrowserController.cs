@@ -81,7 +81,7 @@ namespace BETest.UI.Controllers
 
         private void OnRoomDiscovered(RoomInfo room)
         {
-            if (room.PlayerCount == room.MaxPlayers) return;
+            if (room.PlayerCount >= room.MaxPlayers) return;
             if (_rooms.Exists(existingRoom => existingRoom.Id == room.Id)) return;
             _rooms.Add(room);
 

@@ -57,7 +57,16 @@ namespace BETest.Entities
             _camera = Camera.main;
         }
 
-        public void SetInputEnabled(bool enabled) => _inputEnabled = enabled;
+        public void SetInputEnabled(bool enabled)
+        {
+            _inputEnabled = enabled;
+
+            if (!enabled)
+            {
+                _horizontalInput = 0f;
+                _jumpRequested = false;
+            }
+        }
 
         public override void HandleTick()
         {
@@ -91,11 +100,10 @@ namespace BETest.Entities
             UpdateStateFromTransform(_direction, Mathf.FloatToHalf(_aimAngle));
         }
 
-        public override void HandleServerStateUpdate(NetworkEntityStateData state)
+        public override bool HandleServerStateUpdate(NetworkEntityStateData state)
         {
-            base.HandleServerStateUpdate(state);
-
-            if (HasStateAuthority) return;
+            if (!base.HandleServerStateUpdate(state)) return false;
+            if (HasStateAuthority) return true;
 
             if ((state.UpdateFlags & EntityUpdateFlags.Position) != 0)
             {
@@ -111,6 +119,8 @@ namespace BETest.Entities
             {
                 _targetAimAngle = Mathf.HalfToFloat(_entityState.AimAngle);
             }
+
+            return true;
         }
 
         private void Update()
@@ -118,6 +128,8 @@ namespace BETest.Entities
             if (HasStateAuthority)
             {
                 _horizontalInput = 0f;
+
+                if (!_inputEnabled) return;
 
                 if (Keyboard.current.aKey.isPressed) _horizontalInput += 1f;
                 if (Keyboard.current.dKey.isPressed) _horizontalInput -= 1f;
@@ -149,7 +161,7 @@ namespace BETest.Entities
 
         private void UpdateFire()
         {
-            if (!Mouse.current.leftButton.isPressed || !_inputEnabled) return;
+            if (!Mouse.current.leftButton.isPressed) return;
             if (Time.time < _nextFireTime) return;
 
             _nextFireTime = Time.time + _weaponData.FireRate;

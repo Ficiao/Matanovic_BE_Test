@@ -22,9 +22,14 @@ namespace BETest.Entities
             transform.position = new Vector3(Mathf.HalfToFloat(_entityState.X), Mathf.HalfToFloat(_entityState.Y), transform.position.z);
         }
 
-        public virtual void HandleServerStateUpdate(NetworkEntityStateData state)
+        public virtual bool HandleServerStateUpdate(NetworkEntityStateData state)
         {
+            if (state.SeqAcc <= _entityState.SeqAcc) return false;
+
             _entityState.UpdateValues(state);
+            _entityState.SeqAcc = state.SeqAcc;
+
+            return true;
         }
 
         protected void UpdateStateFromTransform(MoveDirFlags direction, ushort AimAngle)

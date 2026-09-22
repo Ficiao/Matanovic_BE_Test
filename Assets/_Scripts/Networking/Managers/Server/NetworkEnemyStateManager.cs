@@ -51,7 +51,7 @@ namespace BETest.Networking.Managers
 
         public void HandleTick()
         {
-            if (!_playerStateManager.HasPlayers)
+            if (!_playerStateManager.HasPlayerStates)
             {
                 _spawnTimer = 0f;
                 return;

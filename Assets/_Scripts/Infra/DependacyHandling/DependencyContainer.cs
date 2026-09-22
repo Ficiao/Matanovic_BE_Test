@@ -8,7 +8,6 @@ using UnityEngine;
 
 namespace BETest.Infra.DependacyHandling
 {
-    [DefaultExecutionOrder(-1000)]
     public class DependencyContainer : MonoBehaviour
     {
         [field: SerializeField] public RoomManager RoomManager { get; private set; }
@@ -21,10 +20,8 @@ namespace BETest.Infra.DependacyHandling
         [field: SerializeField] public WeaponDataScriptable WeaponData { get; private set; }
         [field: SerializeField] public VolumeSettingsScriptable VolumeSettings { get; private set; }
 
-        private void Start()
+        public void Initialize()
         {
-            DontDestroyOnLoad(this);
-
             VolumeSettings.Initialize();
             Client.Initialize(this);
             Server.Initialize(this);

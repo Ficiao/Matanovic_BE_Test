@@ -23,7 +23,9 @@ namespace BETest.Networking.Managers
         private SpawnManager _spawnManager;
         private int _worldSeed;
 
-        public bool HasPlayers => _states.Count > 0;
+        public bool HasPlayerStates => _states.Count > 0;
+        public bool CanAcceptPlayer => _playerDatas.Count < GameConfig.MAX_PLAYERS_PER_ROOM;
+        public bool IsPlayerConnected(uint PID) => _playerDatas.ContainsKey(PID);
 
         public void Initialize(SpawnManager spawnManager, int worldSeed)
         {

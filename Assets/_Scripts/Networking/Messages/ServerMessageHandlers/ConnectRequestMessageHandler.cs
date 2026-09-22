@@ -8,19 +8,8 @@ namespace BETest.Networking.Messages
 {
     public static class ConnectRequestMessageHandler
     {
-        private const int MAX_ATTEMPTS = 5;
-        private const float WINDOW = 60f;
-        private static Dictionary<string, (int count, float resetTime)> _ipAttempts = new();
-
         public static void ProcessMessage(ConnectRequestMessage message, NetPeer peer, GameSceneContext context)
         {
-            if (!AllowConnection(peer.Address.ToString(), Time.unscaledTime))
-            {
-                CustomLogger.Warning($"disconnecting_peer", new() { ["id"] = peer?.Id, ["reason"] = "too_many_connection_attempts" });
-                peer.Disconnect();
-                return;
-            }
-
             NetworkObjectStateManager objectManager = context != null ? context.ObjectStateManager : null;
             if (objectManager == null)
             {
@@ -28,28 +17,19 @@ namespace BETest.Networking.Messages
                 peer.Disconnect();
                 return;
             }
-            
+
+            if (!objectManager.CanAcceptPlayer)
+            {
+                CustomLogger.Warning("disconnecting_peer", new() {["id"] = peer.Id, ["reason"] = "room_full"});
+
+                peer.Disconnect();
+                return;
+            }
+
+            uint PID = (uint)peer.Id;
+            if (objectManager.IsPlayerConnected(PID)) return;
+
             objectManager.PlayerConnected(peer, message.Data);
-        }
-
-        public static bool AllowConnection(string ip, float now)
-        {
-            if (!_ipAttempts.TryGetValue(ip, out (int count, float resetTime) entry))
-            {
-                _ipAttempts[ip] = (1, now + WINDOW);
-                return true;
-            }
-
-            if (now > entry.resetTime)
-            {
-                _ipAttempts[ip] = (1, now + WINDOW);
-                return true;
-            }
-
-            if (entry.count >= MAX_ATTEMPTS) return false;
-
-            _ipAttempts[ip] = (entry.count + 1, entry.resetTime);
-            return true;
         }
     }
 }

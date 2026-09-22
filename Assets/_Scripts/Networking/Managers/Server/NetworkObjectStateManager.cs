@@ -14,6 +14,9 @@ namespace BETest.Networking.Managers
         private NetworkPlayerStateManager _playerStateManager;
         private NetworkEnemyStateManager _enemyStateManager;
 
+        public bool CanAcceptPlayer => _playerStateManager.CanAcceptPlayer;
+        public bool IsPlayerConnected(uint PID) => _playerStateManager.IsPlayerConnected(PID);
+
         public void Initialize(SpawnManager spawnManager, ObjectPrefabsScriptable objectPrefabs, int worldSeed)
         {
             _playerStateManager = new();
@@ -59,8 +62,6 @@ namespace BETest.Networking.Managers
             if (!_playerStateManager.TryGetPlayerData(PID, out ClientPlayerData playerData)) return;
 
             uint ObjectID = _nextProjectileID++;
-            _nextProjectileID %= 10000;
-            if (_nextProjectileID < 1000) _nextProjectileID += 1000;
 
             ProjectileSpawnData spawnData = new(ObjectID, PID, playerData.PlayerWeaponType, shootData.SourcePosition, shootData.Direction.normalized);
 

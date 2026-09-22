@@ -60,11 +60,10 @@ namespace BETest.Entities
             HandlePlayerContact();
         }
 
-        public override void HandleServerStateUpdate(NetworkEntityStateData state)
+        public override bool HandleServerStateUpdate(NetworkEntityStateData state)
         {
-            base.HandleServerStateUpdate(state);
-
-            if (HasStateAuthority) return;
+            if (!base.HandleServerStateUpdate(state)) return false;
+            if (HasStateAuthority) return true;
 
             if ((state.UpdateFlags & EntityUpdateFlags.Position) != 0)
             {
@@ -74,6 +73,8 @@ namespace BETest.Entities
                     GameConfig.OBJECT_Z_POSITION
                 );
             }
+
+            return true;
         }
 
         private void Update()

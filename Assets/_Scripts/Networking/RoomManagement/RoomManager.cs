@@ -108,8 +108,15 @@ namespace BETest.Networking.RoomManagement
             switch (State)
             {
                 case RoomStateType.Creating:
+                    if (!_lanDiscovery.StartAdvertising(CurrentRoom.GamePort))
+                    {
+                        CustomLogger.Error("room_discovery_start_failed");
+                        OnRoomOperationFailed?.Invoke("Failed to start room discovery.");
+                        LeaveRoom();
+                        return;
+                    }
+
                     SetState(RoomStateType.InRoomHost);
-                    _lanDiscovery.StartAdvertising(CurrentRoom.GamePort);
                     break;
 
                 case RoomStateType.Joining:

@@ -36,6 +36,7 @@ namespace BETest.Networking.Managers
 
         public void SpawnProjectile(ProjectileSpawnData data)
         {
+            if (_projectiles.ContainsKey(data.ObjectID)) return;
             ObjectPool<Projectile> pool = _pools[data.WeaponType];
 
             WeaponData weaponData = _weaponData.GetWeaponData(data.WeaponType);
@@ -59,7 +60,9 @@ namespace BETest.Networking.Managers
 
         public void HandleProjectileEnd(ProjectileEndData data)
         {
-            _projectiles[data.ObjectID].HandleProjectileEnd(data);
+            if (!_projectiles.TryGetValue(data.ObjectID, out Projectile projectile)) return;
+
+            projectile.HandleProjectileEnd(data);
         }
 
         public void ReleaseProjectile(Projectile projectile)

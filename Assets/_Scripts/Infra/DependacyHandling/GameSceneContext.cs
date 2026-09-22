@@ -55,8 +55,6 @@ namespace BETest.Infra.DependacyHandling
             GameTickRunner.Initialize(NetworkObjectManager, NetworkStateBroadcastService, ObjectStateManager);
             CameraController.Initialize(PlayerManager);
             NetworkStatsUIController.Initialize(container.Client, container.Server, container.RoomManager);
-
-            container.RoomManager.GameSceneReady();
         }
     }
 }

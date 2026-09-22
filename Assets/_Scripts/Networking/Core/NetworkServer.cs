@@ -49,7 +49,6 @@ namespace BETest.Networking.ConnectionHandling
             {
                 _server.Stop(false);
                 _server = null;
-                _messageProcessor = null;
                 return false;
             }
 
@@ -67,7 +66,6 @@ namespace BETest.Networking.ConnectionHandling
 
             _server.Stop();
             _server = null;
-            _messageProcessor = null;
 
             CustomLogger.Info("server_stopped");
         }
